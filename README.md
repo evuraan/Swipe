@@ -69,3 +69,10 @@ Sun Aug 01 20:27:27 2021 Swipe/1.06d movedTo: RIGHT
 
 ```
 Desktop notifications ([example](./images/Debug.png)) are also enabled in debug mode - which shows the details of the even intercepted. 
+## Checksums:
+```bash
+$ ./swipe -v
+Version: Swipe/1.06d
+$ sha512sum swipe 
+2a0047e2c3682243aec564c61169353d3fe6e2a2ff2796acb07572b10bc43a7931a8373d74e2069ee7b63b766cf707db0af5ceca7b59baa38be778c55b8371a0  swipe
+```
