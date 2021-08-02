@@ -23,7 +23,7 @@ Gestures on Linux
     gsettings set org.gnome.desktop.peripherals.touchpad send-events enabled
      ```
 ## Setup
-- Download `Swipe` to a folder. (Either download the [release](https://github.com/evuraan/Swipe/releases/download/1.06d/swipe), or clone this repo, or download and extract the <a href="https://github.com/evuraan/Swipe/archive/refs/heads/main.zip">Zip file</a>.)
+- Download `Swipe` to a folder. (Either download the latest [release](https://github.com/evuraan/Swipe/releases/download/1.06d/swipe), or clone this repo, or download and extract the <a href="https://github.com/evuraan/Swipe/archive/refs/heads/main.zip">Zip file</a>.)
 - Launch `swipe` with an optional config file 
 
 See your distro's documentation to setup `Swipe` as a [`Startup Application`](./images/Startup.png) - an [application](./images/Startup.png) that starts when a desktop user logs in. 
