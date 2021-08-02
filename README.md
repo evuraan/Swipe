@@ -1,7 +1,8 @@
 # Swipe
-Gestures on Linux
+Gestures on Linux. 
 
 ![Swipe](./images/Swipe_300x300.png)
+<p>https://evuraan.info/Swipe/ 
 
 ## Features
 - Easy Installation - download (or git clone) and run. 
