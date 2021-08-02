@@ -72,6 +72,13 @@ Sun Aug 01 20:27:27 2021 Swipe/1.06d movedTo: RIGHT
 
 ```
 Desktop notifications ([example](./images/Debug.png)) are also enabled in debug mode - which shows the details of the even intercepted. 
+## Optional: Build 
+If you prefer to build yourself, you will need the [Go Programming Language](https://golang.org/dl/) installed on your System. 
+
+Go into the folder and build as: 
+``` 
+go build
+```
 ## Checksums:
 ```bash
 $ ./swipe -v
