@@ -30,7 +30,6 @@ Gestures on Linux.
 See your distro's documentation to setup `Swipe` as a [`Startup Application`](./images/Startup.png) - an [application](./images/Startup.png) that starts when a desktop user logs in. 
 
 ## Usage:
-If no config file is specified, `Swipe` would use a default configuration.
 
 ```bash
 $ ./swipe -h
@@ -41,6 +40,9 @@ Usage: ./swipe
   -d  --debug        show verbose output
   -c  /etc/ku.conf   config file to use 
 ```
+If no config file is specified, `Swipe` would use a default configuration.
+
+
 Generate a sample config file with `-s` option:
 ```bash
 $ ./swipe -s
