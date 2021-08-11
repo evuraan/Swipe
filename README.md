@@ -5,6 +5,7 @@ Gestures on Linux.
 <p>https://evuraan.info/Swipe/ 
 
 ## Features
+Swipe uses a novel yet simple corelation mechanism to determine directional intent from event coordinates.
 - Easy Installation - download (or git clone) and run. 
 - No dependency on Python or Ruby
 - Supports Config files
@@ -71,7 +72,7 @@ Sun Aug 01 20:27:27 2021 Swipe/1.06d left: 0 right: 7 up: 0 down: 0
 Sun Aug 01 20:27:27 2021 Swipe/1.06d movedTo: RIGHT
 
 ```
-Desktop notifications ([example](./images/Debug.png)) are also enabled in debug mode - which shows the details of the even intercepted. 
+Desktop notifications ([example](./images/Debug.png)) are also enabled in debug mode - which shows the details of the event intercepted. 
 ## Optional: Build 
 If you prefer to build yourself, you will need the [Go Programming Language](https://golang.org/dl/) installed on your System. 
 
