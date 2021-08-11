@@ -5,7 +5,7 @@ Gestures on Linux.
 <p>https://evuraan.info/Swipe/ 
 
 ## Features
-Swipe uses a novel yet simple corelation mechanism to determine directional intent from event coordinates.
+Swipe uses a novel yet simple correlation mechanism to determine directional intent from event coordinates.
 - Easy Installation - download (or git clone) and run. 
 - No dependency on Python or Ruby
 - Supports Config files
