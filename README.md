@@ -11,9 +11,9 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
 - Supports Config files
 - Wide range of devices supported. 
 ## Requirements 
-- libinput-tools and xdotools 
+- libinput-tools 
   ```bash 
-    sudo apt-get install libinput-tools xdotool
+    sudo apt-get install libinput-tools 
    ```
 - Your user must be a member of `input` group:
   ```bash 
@@ -41,8 +41,9 @@ Usage: ./swipe
   -d  --debug        show verbose output
   -c  /etc/ku.conf   config file to use 
 ```
-If no config file is specified, `Swipe` would use a default configuration.
-
+  
+## Config file
+If no config file is specified, `Swipe` would use a default configuration assuming `xdotool` usage. You can use another (like `ydotool` or `xte`), set your config file as appropriate - `Swipe` needs to know what command to run for each type of intercepted event. 
 
 Generate a sample config file with `-s` option:
 ```bash
