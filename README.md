@@ -13,7 +13,7 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
 - Wayland and X11 compatible
 ## Available variants/branches 
 - Branch [modular](https://github.com/evuraan/Swipe/tree/modular) - Swipe/1.06e - Use with `xdotool` or `ydotool` or `xte` etc. 
-- Branch [main](https://github.com/evuraan/Swipe) - Swipe/2.x - Compatible with X11 and Wayland 
+- Branch [main](https://github.com/evuraan/Swipe) - Swipe/2.x - Native compatibility with `X11` and `Wayland` 
   
 ## Requirements 
 - libinput-tools  
