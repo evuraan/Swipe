@@ -24,6 +24,9 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
   ```bash
     gsettings set org.gnome.desktop.peripherals.touchpad send-events enabled
      ```
+- Tool: Depending on whether you use `X11` or `Wayland`, you will need `xdotool` or `ydotool` etc. 
+See [Config](#config-file) notes for more. 
+  
 ## Setup
 - Download `Swipe` to a folder. (Either download the latest [release](https://github.com/evuraan/Swipe/releases/download/1.06d/swipe), or clone this repo, or download and extract the <a href="https://github.com/evuraan/Swipe/archive/refs/heads/main.zip">Zip file</a>.)
 - Launch `swipe` with an optional config file 
