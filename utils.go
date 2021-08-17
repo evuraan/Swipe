@@ -24,7 +24,6 @@ func doRun(cmdIn string) error {
 		return err
 	}
 
-	print("About to run %s", cmdIn)
 	safetySplat := strings.Split(cmdIn, " ")
 	cmdSplat := []string{}
 	x := 0
@@ -125,27 +124,26 @@ func swipeProcessor(chanPtr *chan string) {
 	}
 
 	ourMoves := make(map[int]string)
-	lookUpMap := swipes3
-	mu := &sync.RWMutex{}
 	wg := &sync.WaitGroup{}
-	gesture := "swipe"
-
-	for gesture = range *chanPtr {
-		if len(gesture) < 1 {
+	mu := &sync.Mutex{}
+	var incoming string
+	evtType := 3
+	for incoming = range *chanPtr {
+		if len(incoming) < 1 {
 			continue
 		}
-		jinjin := gesture
+		gesture := incoming
 
 		switch {
-		case strings.Contains(jinjin, swipeUpdate):
+		case strings.Contains(gesture, swipeUpdate):
 			wg.Add(1)
 
 			go func() {
 				defer wg.Done()
-				jinjin = strings.ReplaceAll(jinjin, "(", "")
-				jinjin = strings.ReplaceAll(jinjin, "/ ", "/")
+				gesture = strings.ReplaceAll(gesture, "(", "")
+				gesture = strings.ReplaceAll(gesture, "/ ", "/")
 
-				splat := strings.Split(jinjin, " ")
+				splat := strings.Split(gesture, " ")
 				if len(splat) < 1 {
 					return
 				}
@@ -166,7 +164,7 @@ func swipeProcessor(chanPtr *chan string) {
 
 				if len(fourth) > 0 && fourth[len(fourth)-1] == '4' {
 					// change to 4 finger swipes
-					lookUpMap = swipes4
+					evtType = 4
 				}
 
 				if len(moove) > 1 {
@@ -174,7 +172,7 @@ func swipeProcessor(chanPtr *chan string) {
 				}
 			}()
 
-		case strings.Contains(jinjin, swipeEnd):
+		case strings.Contains(gesture, swipeEnd):
 			rCt := 0
 			lCt := 0
 			uCt := 0
@@ -208,17 +206,12 @@ func swipeProcessor(chanPtr *chan string) {
 				movedTo = down
 			}
 
-			print("movedTo: %s", movedTo)
-			cmd, ok := lookUpMap[movedTo]
-			if ok {
-				workChan <- cmd
-				if deBug && notifyBool {
-					dornotify := fmt.Sprintf("%s %s\n%d", notifyCmd, movedTo, time.Now().Local().Unix())
-					workChan <- dornotify
-				}
-				return
+			go eventLibStuff.handleEvent(movedTo, evtType)
+			if deBug && notifyBool {
+				letsNotify := fmt.Sprintf("%s %s\n%d", notifyCmd, movedTo, time.Now().Local().Unix())
+				workChan <- letsNotify
 			}
-			print("not sure how to process %s", movedTo)
+			print("movedTo: %s", movedTo)
 			return
 		}
 
@@ -283,44 +276,10 @@ func (movesPtr *moves) analyze() string {
 	switch {
 	case self.a <= 0 && self.b > 2:
 		x = down
-
-	/* up:
-	self: &main.moves{a:0, b:-0.59, c:-2.19, d:0}
-	self: &main.moves{a:0, b:-0.88, c:-3.28, d:0}
-	self: &main.moves{a:0, b:-0.22, c:-1.09, d:0}
-	self: &main.moves{a:0, b:-0.37, c:-2.19, d:0}
-	self: &main.moves{a:0, b:-0.18, c:-1.09, d:0}
-	self: &main.moves{a:0, b:-0.18, c:-1.09, d:0}
-	*/
 	case self.a < 1 && self.a > 0 && self.b < 0:
 		x = up
-
-	/*right:
-	self: &main.moves{a:4.98, b:0.59, c:2.19, d:0}
-	self: &main.moves{a:7.04, b:0.59, c:2.19, d:0}
-	self: &main.moves{a:4.98, b:0.88, c:3.28, d:0}
-	self: &main.moves{a:6.74, b:0.59, c:2.19, d:0}
-	self: &main.moves{a:7.62, b:0.59, c:2.19, d:0}
-	self: &main.moves{a:5.86, b:0.29, c:1.09, d:0}
-	self: &main.moves{a:8.79, b:0.29, c:1.09, d:0}
-	self: &main.moves{a:2.93, b:0.59, c:2.19, d:0}
-	*/
 	case self.a > 0 && self.b < self.a && self.b > 0:
 		x = right
-
-	/* left:
-		self: &main.moves{a:-3.81, b:-0.88, c:-3.28, d:0}
-	self: &main.moves{a:-3.22, b:-1.47, c:-5.47, d:0}
-	self: &main.moves{a:-2.64, b:-0.88, c:-3.28, d:0}
-	self: &main.moves{a:-2.64, b:-1.17, c:-4.37, d:0}
-	self: &main.moves{a:-2.35, b:-1.17, c:-4.37, d:0}
-	self: &main.moves{a:-2.64, b:-1.47, c:-5.47, d:0}
-	self: &main.moves{a:-1.47, b:-0.29, c:-1.09, d:0}
-	self: &main.moves{a:-1.47, b:-0.59, c:-2.19, d:0}
-	self: &main.moves{a:-1.47, b:-0.59, c:-2.19, d:0}
-	self: &main.moves{a:-1.17, b:-0.29, c:-1.09, d:0}
-	self: &main.moves{a:-0.88, b:-0.29, c:-1.09, d:0}
-	*/
 	case self.a < 0 && self.b < 0 && self.b > self.a:
 		x = left
 
@@ -381,11 +340,12 @@ func parseConfig(configFile string) {
 			if strings.HasPrefix(line, "#") {
 				continue
 			}
+			line = strings.ToUpper(line)
+
 			splat := strings.Split(line, ":")
 			if len(splat) < 2 {
 				continue
 			}
-
 			key := strings.TrimSpace(splat[0])
 			val := strings.TrimSpace(splat[1])
 			if len(key) < 1 || len(val) < 1 {
@@ -409,7 +369,7 @@ func parseConfig(configFile string) {
 		x, ok := someDict[lookFor3]
 		if ok {
 			if len(x) > 1 {
-				swipes3[key] = x
+				evt3[key] = x
 				j++
 			}
 		}
@@ -418,7 +378,7 @@ func parseConfig(configFile string) {
 		y, ok := someDict[lookFor4]
 		if ok {
 			if len(y) > 1 {
-				swipes4[key] = y
+				evt4[key] = y
 				j++
 			}
 		}
