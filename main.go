@@ -31,7 +31,7 @@ var (
 
 const (
 	progName    = "Swipe"
-	ver         = "1.06d"
+	ver         = "1.06e Modular"
 	stdBuf      = "stdbuf"
 	swipeStart  = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate = "GESTURE_SWIPE_UPDATE"
@@ -44,7 +44,6 @@ const (
 	left        = "LEFT"
 	right       = "RIGHT"
 	tag         = progName + "/" + ver
-	xdotool     = "xdotool"
 	layout      = "Mon Jan 02 15:04:05 2006"
 	MAXWORKERS  = 10
 	procWidth   = 20
@@ -94,10 +93,6 @@ func main() {
 
 func libinput() {
 
-	if !checkExec(xdotool) {
-		fmt.Fprintf(os.Stderr, "Error: Could not find %s\n", xdotool)
-		os.Exit(1)
-	}
 	launcher := ""
 	stdBufBool := checkExec(stdBuf)
 	notifyBool = checkExec("notify-send")
