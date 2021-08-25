@@ -102,14 +102,22 @@ func getOutput() {
 			go swipeProcessor(chanToUse)
 		case strings.Contains(m, swipeEnd):
 			if chanToUse != nil {
-				// tricky stuff: send one last time and then close it.
-				// also mark the ptr as nil to avoid fireworks.
+				*chanToUse <- m
+				close(*chanToUse)
+				chanToUse = nil
+			}
+		case strings.Contains(m, touchStart):
+			touchChan := make(chan string, procWidth)
+			chanToUse = &touchChan
+			go touchProcessor(chanToUse)
+
+		case strings.Contains(m, touchEnd):
+			if chanToUse != nil {
 				*chanToUse <- m
 				close(*chanToUse)
 				chanToUse = nil
 			}
 		}
-
 		if chanToUse != nil {
 			*chanToUse <- m
 		}
@@ -264,8 +272,6 @@ func getMoves(mapPtr *map[int]string) *moves {
 	return &thisMove
 }
 
-// the wonkiest part: we have 4 float64s, which way was it?
-// observe /usr/libexec/libinput/libinput-debug-events to increase reliability.
 func (movesPtr *moves) analyze() string {
 	x := ""
 	if movesPtr == nil {
@@ -382,7 +388,20 @@ func parseConfig(configFile string) {
 				j++
 			}
 		}
+
+		// 5: Touchscreen events
+		lookFor5 := "5" + directions[i]
+		touchScreen, ok := someDict[lookFor5]
+		if ok {
+			if len(touchScreen) > 1 {
+				evt5[key] = touchScreen
+				j++
+			}
+		}
 	}
 	print("Read %d values from the config file", j)
+	print("3 key touchpad events: %v", evt3)
+	print("4 key touchpad events: %v", evt4)
+	print("touchscreen events: %v", evt5)
 	return
 }
