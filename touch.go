@@ -1,3 +1,5 @@
+/* Copyright (C) 2021  Evuraan, <evuraan@gmail.com> */
+
 package main
 
 import (
