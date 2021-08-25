@@ -4,6 +4,7 @@ Gestures on Linux.
 ![Swipe](./images/Swipe_300x300.png)
 <p>https://evuraan.info/Swipe/ 
 
+ 
 ## Features
 Swipe uses a novel yet simple correlation mechanism to determine directional intent from event coordinates.
 - Wide range of devices supported 
@@ -14,6 +15,11 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
 - Supports Config files
 ## Available variants/branches 
 - Branch [modular](https://github.com/evuraan/Swipe/tree/modular) - Swipe/1.06e - Use with `xdotool` or `ydotool` or `xte` etc. 
+ 
+ ## Screengrab Video:
+ `Swipe` in action on a Linux laptop:<br>
+  [https://evuraan.info/evuraan/stuff/Swipe.mp4](https://evuraan.info/evuraan/stuff/Swipe.mp4)
+ 
  
 ## Requirements 
 - libinput-tools  
