@@ -24,7 +24,7 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
   ```bash
     gsettings set org.gnome.desktop.peripherals.touchpad send-events enabled
      ```
-- Tool: Depending on whether you use `X11` or `Wayland`, you will need `xdotool` or `ydotool` etc. 
+- Tool: Depending on whether you use `X11` or `Wayland`, you will need `xdotool` or [`edotool`](https://github.com/evuraan/edotool) or `ydotool` etc. 
 See [Config](#config-file) notes for more. 
   
 ## Setup
