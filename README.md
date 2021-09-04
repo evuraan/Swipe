@@ -50,7 +50,7 @@ Usage: ./swipe
   -c  /etc/ku.conf       config file to use 
   -k  --keys             show available keys
   -i  /dev/input/event1  kbd device to use
-  
+  -a  --available        show available devices
 ```
 - If no config file is specified, `Swipe` would use a default configuration. 
 - If an appropriate `kbd` device cannot be found, `Swipe` will ask you to specify a suitable device using the `-i` option.
@@ -61,6 +61,10 @@ Generate a sample config file with  -s option:
 ```bash
 $ ./swipe -s
 Sample Config: 
+# 2 Button Touchpad 
+2right: "KEY_LEFTALT + KEY_LEFT"
+2left:  "KEY_LEFTALT + KEY_RIGHT"
+
 # 3 Button Touchpad Gestures:
 3right: "KEY_LEFTALT + KEY_LEFT"
 3left:  "KEY_LEFTALT + KEY_RIGHT"
@@ -82,58 +86,17 @@ Sample Config:
 5down:       "KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP"
 5fastup:     "KEY_SPACE"
 5fastdown:   "KEY_LEFTSHIFT + KEY_SPACE"
-
+	
 ```
 ## Debug option
 Run with `-d` option to have debug info onto the terminal:
-```bash$ ./swipe -c swipe.conf -d 
-$ ./swipe -d
+```bash
 $ ./swipe -d -c /tmp/swipe.conf 
-Wed Aug 25 07:14:12 2021 Swipe/3.01c Read 12 values from the config file
-Wed Aug 25 07:14:12 2021 Swipe/3.01c 3 key touchpad events: map[DOWN:KEY_LEFTSHIFT + KEY_SPACE LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_LEFTALT + KEY_LEFT UP:KEY_SPACE]
-Wed Aug 25 07:14:12 2021 Swipe/3.01c 4 key touchpad events: map[DOWN:KEY_END LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_LEFTALT + KEY_LEFT UP:KEY_HOME]
-Wed Aug 25 07:14:12 2021 Swipe/3.01c touchscreen events: map[DOWN:KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP FAST_DOWN:KEY_LEFTSHIFT + KEY_SPACE FAST_UP:KEY_SPACE LEFT:KEY_LEFTALT + KEY_RIGHT MED_DOWN:KEY_LEFTSHIFT + KEY_SPACE MED_UP:KEY_SPACE RIGHT:KEY_LEFTALT + KEY_LEFT UP:KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN]
-Copyright © 2021 Evuraan <evuraan@gmail.com>. All rights reserved.
-This program comes with ABSOLUTELY NO WARRANTY.
-Wed Aug 25 07:14:12 2021 Swipe/3.01c Howdy!
-Wed Aug 25 07:14:12 2021 Swipe/3.01c keyboard device: /dev/input/event3
-Wed Aug 25 07:14:12 2021 [C] [getFd] fd opened: 3
-Wed Aug 25 07:14:12 2021 Swipe/3.01c About to run stdbuf -oL /usr/libexec/libinput/libinput-debug-events
-Wed Aug 25 07:14:12 2021 Swipe/3.01c pid: 9145
-Wed Aug 25 07:14:21 2021 Swipe/3.01c left: 0 right: 0 up: 0 down: 0
-Wed Aug 25 07:14:21 2021 Swipe/3.01c movedTo: RIGHT
-Wed Aug 25 07:14:21 2021 [C] [emit] emitted 24 bytes type 1 code 56
-Wed Aug 25 07:14:21 2021 [C] [emit] emitted 24 bytes type 1 code 105
-Wed Aug 25 07:14:21 2021 [C] [emit] emitted 24 bytes type 0 code 0
-Wed Aug 25 07:14:21 2021 [C] [emit] emitted 24 bytes type 1 code 56
-Wed Aug 25 07:14:21 2021 [C] [emit] emitted 24 bytes type 1 code 105
-Wed Aug 25 07:14:21 2021 [C] [emit] emitted 24 bytes type 0 code 0
-Wed Aug 25 07:14:21 2021 [C] [handleEvents] Handled 2 events
-Wed Aug 25 07:14:21 2021 Swipe/3.01c Gesture type 3, intent: RIGHT, cmd: KEY_LEFTALT + KEY_LEFT
-Wed Aug 25 07:14:23 2021 Swipe/3.01c touchLen: 3
-Wed Aug 25 07:14:23 2021 Swipe/3.01c movedTo: DOWN
-Wed Aug 25 07:14:23 2021 Swipe/3.01c fingers: 1
-Wed Aug 25 07:14:23 2021 Swipe/3.01c startx :59.95, endx: 59.98
-Wed Aug 25 07:14:23 2021 Swipe/3.01c starty: 60.01, endy: 60.34
-Wed Aug 25 07:14:23 2021 Swipe/3.01c xdelta: 0.02999999999999403, ydelta: 0.3300000000000054, abs(xd): 0.02999999999999403, abs(yd): 0.3300000000000054
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 1 code 103
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 1 code 103
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 1 code 103
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 1 code 103
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 1 code 103
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 1 code 103
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 0 code 0
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 1 code 103
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 1 code 103
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 1 code 103
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 1 code 103
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 1 code 103
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 1 code 103
-Wed Aug 25 07:14:23 2021 [C] [emit] emitted 24 bytes type 0 code 0
-Wed Aug 25 07:14:23 2021 [C] [handleEvents] Handled 6 events
-Wed Aug 25 07:14:23 2021 Swipe/3.01c Gesture type 5, intent: DOWN, cmd: KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP
-
-
+Fri Sep 03 19:07:12 2021 Swipe/3.01e Read 14 values from the config file
+Fri Sep 03 19:07:12 2021 Swipe/3.01e 2 key touchpad events: map[LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_RIGHTALT + KEY_LEFT]
+Fri Sep 03 19:07:12 2021 Swipe/3.01e 3 key touchpad events: map[DOWN:KEY_LEFTSHIFT + KEY_SPACE LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_LEFTALT + KEY_LEFT UP:KEY_SPACE]
+Fri Sep 03 19:07:12 2021 Swipe/3.01e 4 key touchpad events: map[DOWN:KEY_END LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_LEFTALT + KEY_LEFT UP:KEY_HOME]
+Fri Sep 03 19:07:12 2021 Swipe/3.01e touchscreen events: map[DOWN:KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_LEFTALT + KEY_LEFT UP:KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN]
 ```
 Desktop notifications ([example](./images/Debug.png)) are also enabled in debug mode - which shows the details of the event intercepted. 
 

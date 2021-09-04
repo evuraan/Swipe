@@ -83,7 +83,9 @@ func runThis(cmdIn string) error {
 
 	if err == nil {
 		print("pid: %v", cmd.Process.Pid)
-		getOutput()
+		orange := orangeStruct{}
+		orange.processLoop()
+		// getOutput()
 		go cmd.Wait()
 	}
 
@@ -109,6 +111,7 @@ func getOutput() {
 				chanToUse = nil
 			}
 		case strings.Contains(m, touchStart):
+
 			touchChan := make(chan string, procWidth)
 			chanToUse = &touchChan
 			go touchProcessor(chanToUse)
@@ -119,11 +122,57 @@ func getOutput() {
 				close(*chanToUse)
 				chanToUse = nil
 			}
+		case strings.Contains(m, POINTER_AXIS):
+			if chanToUse == nil {
+				pointerAxisChan := make(chan string, procWidth)
+				chanToUse = &pointerAxisChan
+				go twoFingerTouchPadProcessor(chanToUse)
+			}
+
 		}
+		mu.RLock()
 		if chanToUse != nil {
 			*chanToUse <- m
 		}
+		mu.RUnlock()
 
+	}
+}
+
+func twoFingerTouchPadProcessor(chanPtr *chan string) {
+	if chanPtr == nil {
+		return
+	}
+	done := make(chan bool, 1)
+	defer close(done)
+
+	mu.RLock()
+	readFrom := *chanPtr
+	mu.RUnlock()
+
+	go func() {
+
+		if readFrom == nil {
+			return
+		}
+		for i := range readFrom {
+			incoming := i
+			print("twoFingerTouchPadProcessor %s", incoming)
+		}
+	}()
+
+	select {
+	case <-done:
+		return
+	case <-time.After(1 * time.Second):
+		print("Ding ding ding!")
+		mu.Lock()
+		defer mu.Unlock()
+		if chanPtr != nil {
+			close(*chanPtr)
+			chanPtr = nil
+		}
+		return
 	}
 
 }
@@ -369,6 +418,11 @@ func parseConfig(configFile string) {
 		os.Exit(1)
 	}
 
+	evt2 = make(map[string]string)
+	evt3 = make(map[string]string)
+	evt4 = make(map[string]string)
+	evt5 = make(map[string]string)
+
 	j := 0
 	for i := range directions {
 		lookFor3 := "3" + directions[i]
@@ -400,8 +454,20 @@ func parseConfig(configFile string) {
 				j++
 			}
 		}
+
+		// evt2  2 finger touchPad events
+		lookFor2 := "2" + directions[i]
+		twoPad, ok := someDict[lookFor2]
+		if ok {
+			if len(twoPad) > 1 {
+				evt2[key] = twoPad
+				j++
+			}
+		}
+
 	}
 	print("Read %d values from the config file", j)
+	print("2 key touchpad events: %v", evt2)
 	print("3 key touchpad events: %v", evt3)
 	print("4 key touchpad events: %v", evt4)
 	print("touchscreen events: %v", evt5)
