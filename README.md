@@ -10,7 +10,8 @@ Gestures on Linux.
 ## Features
 Swipe uses a novel yet simple correlation mechanism to determine directional intent from event coordinates.
 - Wide range of devices supported 
-- Touchscreens and Touchpads 
+- Touchscreens - single, double, triple, quad touches supported. 
+- Touchpad - double, triple, quad touches 
 - Wayland and X11 compatible
 - Easy Installation - download (or git clone) and run. 
 - No dependency on Python or Ruby
