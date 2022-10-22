@@ -157,6 +157,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 	"unsafe"
 )
 
@@ -203,18 +204,16 @@ var (
 
 const (
 	progName       = "Swipe"
-	ver            = "3.01e"
+	ver            = "4.1a"
 	stdBuf         = "stdbuf"
 	swipeStart     = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate    = "GESTURE_SWIPE_UPDATE"
 	swipeEnd       = "GESTURE_SWIPE_END"
-	pinchStart     = "GESTURE_PINCH_BEGIN"
-	pinchEnd       = "GESTURE_PINCH_END"
-	pinchUpdate    = "GESTURE_PINCH_UPDATE"
 	touchStart     = "TOUCH_DOWN"
 	touchEnd       = "TOUCH_UP"
 	POINTER_AXIS   = "POINTER_AXIS"
-	POINTER_MOTION = "POINTER_MOTION"
+	octoberTwoFin  = "POINTER_SCROLL_FINGER"
+	oct2FinDelay   = 250 * time.Millisecond
 	touchMin       = 1
 	up             = "UP"
 	down           = "DOWN"
@@ -224,11 +223,8 @@ const (
 	mediumUp       = "MED_UP"
 	mediumDown     = "MED_DOWN"
 	fastdown       = "FAST_DOWN"
-	fastupPivot    = 20
-	fastdownPivot  = 20
 	tag            = progName + "/" + ver
 	layout         = "Mon Jan 02 15:04:05 2006"
-	MAXWORKERS     = 10
 	END            = 65535
 	procWidth      = 20
 	notifyCmd      = "notify-send " + progName
