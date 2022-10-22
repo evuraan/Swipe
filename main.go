@@ -169,7 +169,6 @@ var (
 	workChan   chan string
 	kbd        = ""
 	configFile = ""
-	mu         = &sync.RWMutex{}
 
 	evt1 = map[string]string{}
 	// 2 finger touchPad events
@@ -286,7 +285,9 @@ func main() {
 	go func() {
 		for cmdString := range workChan {
 			if len(cmdString) > 0 {
-				go doRun(cmdString)
+				go func() {
+					_ = doRun(cmdString)
+				}()
 			}
 		}
 	}()
@@ -344,7 +345,7 @@ func parseArgs() {
 				os.Exit(0)
 			}
 			if strings.Contains(arg, "sampleCfg") || arg == "s" || arg == "--s" || arg == "-s" {
-				fmt.Println("\nSample Config:", sampleConf)
+				fmt.Printf("\nSample Config: %s\n", sampleConf)
 				os.Exit(0)
 			}
 			if strings.Contains(arg, "version") || arg == "v" || arg == "--v" || arg == "-v" {

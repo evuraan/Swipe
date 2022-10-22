@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -41,7 +42,7 @@ func doRun(cmdIn string) error {
 		return err
 	}
 
-	cmd := exec.Command(cmdSplat[0], cmdSplat[1:]...)
+	cmd := exec.Command(cmdSplat[0], cmdSplat[1:]...) // #nosec G204
 	err := cmd.Run()
 	return err
 }
@@ -70,7 +71,7 @@ func runThis(cmdIn string) error {
 		return err
 	}
 
-	cmd := exec.Command(cmdSplat[0], cmdSplat[1:]...)
+	cmd := exec.Command(cmdSplat[0], cmdSplat[1:]...) // #nosec G204
 	cmd.Stderr = os.Stderr
 	var err error
 	stdout, err = cmd.StdoutPipe()
@@ -86,95 +87,12 @@ func runThis(cmdIn string) error {
 		orange := orangeStruct{}
 		orange.processLoop()
 		// getOutput()
-		go cmd.Wait()
+		go func() {
+			_ = cmd.Wait()
+		}()
 	}
 
 	return err
-}
-
-func getOutput() {
-	scanner := bufio.NewScanner(stdout)
-	m := ""
-	var chanToUse *chan string = nil
-	for scanner.Scan() {
-
-		m = scanner.Text()
-		switch {
-		case strings.Contains(m, swipeStart):
-			swipeChan := make(chan string, procWidth)
-			chanToUse = &swipeChan
-			go swipeProcessor(chanToUse)
-		case strings.Contains(m, swipeEnd):
-			if chanToUse != nil {
-				*chanToUse <- m
-				close(*chanToUse)
-				chanToUse = nil
-			}
-		case strings.Contains(m, touchStart):
-
-			touchChan := make(chan string, procWidth)
-			chanToUse = &touchChan
-			go touchProcessor(chanToUse)
-
-		case strings.Contains(m, touchEnd):
-			if chanToUse != nil {
-				*chanToUse <- m
-				close(*chanToUse)
-				chanToUse = nil
-			}
-		case strings.Contains(m, POINTER_AXIS):
-			if chanToUse == nil {
-				pointerAxisChan := make(chan string, procWidth)
-				chanToUse = &pointerAxisChan
-				go twoFingerTouchPadProcessor(chanToUse)
-			}
-
-		}
-		mu.RLock()
-		if chanToUse != nil {
-			*chanToUse <- m
-		}
-		mu.RUnlock()
-
-	}
-}
-
-func twoFingerTouchPadProcessor(chanPtr *chan string) {
-	if chanPtr == nil {
-		return
-	}
-	done := make(chan bool, 1)
-	defer close(done)
-
-	mu.RLock()
-	readFrom := *chanPtr
-	mu.RUnlock()
-
-	go func() {
-
-		if readFrom == nil {
-			return
-		}
-		for i := range readFrom {
-			incoming := i
-			print("twoFingerTouchPadProcessor %s", incoming)
-		}
-	}()
-
-	select {
-	case <-done:
-		return
-	case <-time.After(1 * time.Second):
-		print("Ding ding ding!")
-		mu.Lock()
-		defer mu.Unlock()
-		if chanPtr != nil {
-			close(*chanPtr)
-			chanPtr = nil
-		}
-		return
-	}
-
 }
 
 func swipeProcessor(chanPtr *chan string) {
@@ -380,12 +298,17 @@ func parseConfig(configFile string) {
 	someDict := make(map[string]string)
 
 	func() {
-		f, err := os.Open(configFile)
+		f, err := os.Open(filepath.Clean(configFile))
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Could not open config file: %v\n", err)
 			os.Exit(1)
 		}
-		defer f.Close()
+		defer func() {
+			if err := f.Close(); err != nil {
+				fmt.Fprintf(os.Stderr, "err: %s", err)
+			}
+		}()
+
 		fscanner := bufio.NewScanner(f)
 		for fscanner.Scan() {
 			line := fscanner.Text()
@@ -471,5 +394,4 @@ func parseConfig(configFile string) {
 	print("3 key touchpad events: %v", evt3)
 	print("4 key touchpad events: %v", evt4)
 	print("touchscreen events: %v", evt5)
-	return
 }

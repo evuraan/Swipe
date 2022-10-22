@@ -11,8 +11,7 @@ import (
 )
 
 const (
-	POINTER_MOTION_DELAY = 400
-	POINTER_AXIS_DELAY   = 100
+	POINTER_AXIS_DELAY = 100
 )
 
 type orangeStruct struct {
@@ -216,7 +215,6 @@ func (orangeStructPtr *orangeStruct) processLoop() {
 			}
 			self.progress = false
 			self.Unlock()
-
 		}
 
 		self.Lock()
@@ -226,8 +224,4 @@ func (orangeStructPtr *orangeStruct) processLoop() {
 		self.Unlock()
 
 	}
-}
-
-func (orangeStructPtr *orangeStruct) swipeProcessor() {
-	go swipeProcessor(orangeStructPtr.chanp)
 }
