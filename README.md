@@ -42,6 +42,8 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
 
 See your distro's documentation to setup `Swipe` as a [`Startup Application`](./images/Startup.png) - an [application](./images/Startup.png) that starts when a desktop user logs in. 
 
+<img src="./images/Startup.png"  width='300'>
+
 ## Usage:
 
 ```bash
