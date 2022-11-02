@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -11,8 +10,7 @@ import (
 )
 
 const (
-	POINTER_MOTION_DELAY = 400
-	POINTER_AXIS_DELAY   = 100
+	POINTER_AXIS_DELAY = 100
 )
 
 type orangeStruct struct {
@@ -24,8 +22,122 @@ type orangeStruct struct {
 func (orangeStructPtr *orangeStruct) getNewChan() (x bool) {
 	self := orangeStructPtr
 	someChan := make(chan string, procWidth)
+	self.Lock()
+	defer self.Unlock()
 	self.chanp = &someChan
-	return true
+	return self.chanp != nil
+}
+
+// Seen in October 2022, ubuntu 22.04
+func (orangeStructPtr *orangeStruct) twoFingerOctober2022() {
+	self := orangeStructPtr
+	self.RLock()
+	readFromPtr := self.chanp
+	self.RUnlock()
+	if readFromPtr == nil {
+		return
+	}
+
+	// read just enough to read the intent
+	go func() {
+		time.Sleep(oct2FinDelay)
+		self.Lock()
+		defer self.Unlock()
+		if self.chanp != nil {
+			close(*self.chanp)
+			self.chanp = nil
+		}
+		self.progress = false
+	}()
+
+	done := make(chan bool, 1)
+	defer close(done)
+	go func() {
+
+		ourMoves := make(map[int]string)
+
+		for i := range *readFromPtr {
+			if !strings.Contains(i, octoberTwoFin) {
+				return
+			}
+			splat := strings.Split(i, " ")
+			map1 := make(map[int]string)
+			for i := range splat {
+				if splat[i] == "" {
+					continue
+				}
+				map1[len(map1)] = splat[i]
+			}
+			if len(map1) < 7 {
+				continue
+			}
+			moveA, ok := getFloatTwoFinger(map1[3])
+			if !ok {
+				continue
+			}
+			moveB, ok := getFloatTwoFinger(map1[5])
+			if !ok {
+				continue
+			}
+			x := ""
+			switch {
+			case moveA < 0 && moveB == 0:
+				x = up
+			case moveA == 0 && moveB > 0:
+				x = right
+			case moveA == 0 && moveB < 0:
+				x = left
+			default:
+				x = down
+			}
+			ourMoves[len(ourMoves)] = x
+
+		}
+
+		rCt := 0
+		lCt := 0
+		uCt := 0
+		dCt := 0
+
+		for k := range ourMoves {
+			switch {
+			case ourMoves[k] == up:
+				uCt++
+			case ourMoves[k] == down:
+				dCt++
+			case ourMoves[k] == left:
+				lCt++
+			case ourMoves[k] == right:
+				rCt++
+			}
+		}
+
+		// print("left: %d right: %d up: %d down: %d", lCt, rCt, uCt, dCt)
+
+		movedTo := ""
+		switch {
+		case rCt >= lCt && rCt >= uCt && rCt >= dCt:
+			movedTo = right
+		case lCt >= rCt && lCt >= uCt && lCt >= dCt:
+			movedTo = left
+		case uCt >= lCt && uCt >= rCt && uCt >= dCt:
+			movedTo = "Up - Muted"
+		case dCt >= uCt && dCt >= rCt && dCt >= lCt:
+			movedTo = "Down - Muted"
+		}
+		print("%s intent: %s", octoberTwoFin, movedTo)
+		if len(movedTo) < 1 {
+			return
+		}
+		const evtType = 2
+		go eventLibStuff.handleEvent(movedTo, evtType)
+		if deBug && notifyBool {
+			letsNotify := fmt.Sprintf("%s %s-%s\n%d", notifyCmd, "2FTPad", movedTo, time.Now().Local().Unix())
+			workChan <- letsNotify
+		}
+
+	}()
+
 }
 
 // 2 finger touchPad
@@ -149,7 +261,7 @@ func getFloatTwoFinger(input string) (float64, bool) {
 	splat := strings.Split(input, "/")
 	someFloat, err := strconv.ParseFloat(splat[0], 64)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "strconv %v\n", err)
+		//fmt.Fprintf(os.Stderr, "strconv %v\n", err)
 		fmt.Printf("Inc: %s splat: %#v\n", input, splat)
 		return 0, false
 	}
@@ -167,6 +279,7 @@ func (orangeStructPtr *orangeStruct) processLoop() {
 		if len(m) < 1 {
 			continue
 		}
+
 		self.RLock()
 		progress = self.progress
 		self.RUnlock()
@@ -216,7 +329,21 @@ func (orangeStructPtr *orangeStruct) processLoop() {
 			}
 			self.progress = false
 			self.Unlock()
+		case !progress && strings.Contains(m, octoberTwoFin):
+			// a new approach: start reading upon the first signs of the signature.
+			// read just enough to understand the intent
+			nChanPro := self.getNewChan()
+			self.Lock()
+			self.progress = nChanPro
+			self.Unlock()
+			go self.twoFingerOctober2022()
 
+			/* intercept these
+			   -event5   POINTER_SCROLL_FINGER   +11.170s	vert 0.00/0.0 horiz 9.67/0.0* (finger)
+			    event5   POINTER_SCROLL_FINGER   +11.177s	vert 0.00/0.0 horiz 3.51/0.0* (finger)
+			    event5   POINTER_SCROLL_FINGER   +11.183s	vert 0.00/0.0 horiz 10.54/0.0* (finger)
+			    event5   POINTER_SCROLL_FINGER   +11.190s	vert 0.00/0.0 horiz 6.59/0.0* (finger)
+			*/
 		}
 
 		self.Lock()
@@ -224,10 +351,5 @@ func (orangeStructPtr *orangeStruct) processLoop() {
 			*self.chanp <- m
 		}
 		self.Unlock()
-
 	}
-}
-
-func (orangeStructPtr *orangeStruct) swipeProcessor() {
-	go swipeProcessor(orangeStructPtr.chanp)
 }

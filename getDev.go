@@ -6,19 +6,17 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
 
 const (
 	devices  = "/proc/bus/input/devices"
-	touchpad = "TouchPad"
 	keyboard = "keyboard"
 )
 
-var (
-	touchPadIdentifier = ""
-)
+
 
 // func main() {
 // 	fmt.Println("Hello!")
@@ -65,12 +63,16 @@ func parseFileToMap(configFile string) (someDict map[int]string) {
 	someDict = make(map[int]string)
 
 	func() {
-		f, err := os.Open(configFile)
+		f, err := os.Open(filepath.Clean(configFile))
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Could not open config file: %v\n", err)
 			os.Exit(1)
 		}
-		defer f.Close()
+		defer func() {
+			if err := f.Close(); err != nil {
+				fmt.Fprintf(os.Stderr, "err: %s", err)
+			}
+		}()
 		fscanner := bufio.NewScanner(f)
 		for fscanner.Scan() {
 			line := fscanner.Text()

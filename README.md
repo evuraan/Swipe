@@ -34,13 +34,15 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
     gsettings set org.gnome.desktop.peripherals.touchpad send-events enabled
      ```
 ## Setup
-- Download `Swipe` to a folder. (Either download the latest [release](https://github.com/evuraan/Swipe/releases/download/3.01e/swipe), or clone this repo, or download and extract the <a href="https://github.com/evuraan/Swipe/archive/refs/heads/main.zip">Zip file</a>.)
+- Download `Swipe` to a folder. (Either download the latest build from the [bin folder](./bin/), or clone this repo, or download and extract the <a href="https://github.com/evuraan/Swipe/archive/refs/heads/main.zip">Zip file</a>.)
 	<pre>
 	$ wget https://github.com/evuraan/Swipe/releases/download/3.01e/swipe -O swipe 
 	$ chmod 775 swipe </pre>
 - Launch `swipe`. In most cases `Swipe` will look for and find everything it needs, otherwise you can use the options and/or a config file.
 
 See your distro's documentation to setup `Swipe` as a [`Startup Application`](./images/Startup.png) - an [application](./images/Startup.png) that starts when a desktop user logs in. 
+
+<img src="./images/Startup.png"  width='300'>
 
 ## Usage:
 
