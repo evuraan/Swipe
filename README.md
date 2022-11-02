@@ -36,7 +36,7 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
 ## Setup
 - Download `Swipe` to a folder. (Either download the latest build from the [bin folder](./bin/), or clone this repo, or download and extract the <a href="https://github.com/evuraan/Swipe/archive/refs/heads/main.zip">Zip file</a>.)
 	<pre>
-	$ wget https://github.com/evuraan/Swipe/releases/download/3.01e/swipe -O swipe 
+	$ wget https://github.com/evuraan/Swipe/blob/main/bin/swipe?raw=true -O swipe 
 	$ chmod 775 swipe </pre>
 - Launch `swipe`. In most cases `Swipe` will look for and find everything it needs, otherwise you can use the options and/or a config file.
 
