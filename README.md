@@ -20,9 +20,9 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
 - Branch [modular](https://github.com/evuraan/Swipe/tree/modular) - Swipe/1.06e - Use with `xdotool` or [`edotool`](https://github.com/evuraan/edotool) or `ydotool` or `xte` etc. 
  
 ## What's new in ver 5.x?
-<img src="./images/swipe_indicator_main.jpg"  width='300'>
  - Added an indicator applet. 
  - Use `--noIndicator` or `-q` option to disable status indicator.
+<img src="./images/swipe_indicator_main.jpg"  width='300'>
 
 ## Requirements 
 - libinput-tools  
