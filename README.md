@@ -19,6 +19,10 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
 ## Available variants/branches 
 - Branch [modular](https://github.com/evuraan/Swipe/tree/modular) - Swipe/1.06e - Use with `xdotool` or [`edotool`](https://github.com/evuraan/edotool) or `ydotool` or `xte` etc. 
  
+## What's new in ver 5.x?
+ - Added an indicator applet
+
+
 ## Requirements 
 - libinput-tools  
   ```bash 
