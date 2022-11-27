@@ -206,7 +206,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "5.0"
+	ver           = "5.0.a"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
