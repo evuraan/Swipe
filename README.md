@@ -21,11 +21,8 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
  
 ## What's new in ver 5.x?
  - Added an indicator applet. 
- - Use `--noIndicator` or `-q` option to disable status indicator.
-
-<img src="./images/swipe_indicator.jpg"  width='300'>
 <img src="./images/swipe_indicator_main.jpg"  width='300'>
-
+ - Use `--noIndicator` or `-q` option to disable status indicator.
 ## Requirements 
 - libinput-tools  
   ```bash 
