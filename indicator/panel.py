@@ -7,7 +7,6 @@ import os
 import time
 from datetime import datetime
 import warnings
-import psutil
 import gi
 gi.require_versions({'Gtk': '3.0','XApp': '1.0'})
 from gi.repository import Gtk, XApp
@@ -84,8 +83,9 @@ class SwipeIcon:
         about_dialog.destroy()
 
 def if_caller_gone(pid):
+    pidFo = "/proc/" + pid
     while True:
-        if not psutil.pid_exists(pid):
+        if not os.path.isdir(pidFo):
             os._exit(1)
         time.sleep(1.1)
 
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     ICON = sys.argv[1]
     PIXBUF = Pixbuf.new_from_file(sys.argv[1])
     app = SwipeIcon()
-    t1 = threading.Thread(target=if_caller_gone, args=((int(sys.argv[2])),))
+    t1 = threading.Thread(target=if_caller_gone, args=(sys.argv[2],))
     t1.start()
     t2 = threading.Thread(target=cleanup)
     t2.start()

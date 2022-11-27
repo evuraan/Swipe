@@ -323,6 +323,8 @@ func main() {
 		if err == nil {
 			// user wants to exit by left click.
 			os.Exit(0)
+		} else if err.Error() == "signal: killed" {
+			os.Exit(1)
 		}
 	}()
 
