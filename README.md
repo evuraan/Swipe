@@ -57,6 +57,7 @@ Usage: ./swipe
   -k  --keys             show available keys
   -i  /dev/input/event1  kbd device to use
   -a  --available        show available devices
+  -q  --noIndicator      disable status icon
 ```
 - If no config file is specified, `Swipe` would use a default configuration. 
 - If an appropriate `kbd` device cannot be found, `Swipe` will ask you to specify a suitable device using the `-i` option.
