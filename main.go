@@ -154,6 +154,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 	"sync"
@@ -162,14 +163,15 @@ import (
 )
 
 var (
-	stdout     io.ReadCloser
-	mustHave   = []string{"/usr/libexec/libinput/libinput-debug-events", "libinput-debug-events"}
-	deBug      = false
-	notifyBool = false
-	directions = []string{up, down, left, right, fastdown, fastup, mediumDown, mediumUp}
-	workChan   chan string
-	kbd        = ""
-	configFile = ""
+	stdout             io.ReadCloser
+	mustHave           = []string{"/usr/libexec/libinput/libinput-debug-events", "libinput-debug-events"}
+	deBug              = false
+	notifyBool         = false
+	statusIconDisabled = false
+	directions         = []string{up, down, left, right, fastdown, fastup, mediumDown, mediumUp}
+	workChan           chan string
+	kbd                = ""
+	configFile         = ""
 
 	evt1 = map[string]string{}
 	// 2 finger touchPad events
@@ -203,33 +205,33 @@ var (
 )
 
 const (
-	progName       = "Swipe"
-	ver            = "4.1a"
-	stdBuf         = "stdbuf"
-	swipeStart     = "GESTURE_SWIPE_BEGIN"
-	swipeUpdate    = "GESTURE_SWIPE_UPDATE"
-	swipeEnd       = "GESTURE_SWIPE_END"
-	touchStart     = "TOUCH_DOWN"
-	touchEnd       = "TOUCH_UP"
-	POINTER_AXIS   = "POINTER_AXIS"
-	octoberTwoFin  = "POINTER_SCROLL_FINGER"
-	oct2FinDelay   = 250 * time.Millisecond
-	touchMin       = 1
-	up             = "UP"
-	down           = "DOWN"
-	left           = "LEFT"
-	right          = "RIGHT"
-	fastup         = "FAST_UP"
-	mediumUp       = "MED_UP"
-	mediumDown     = "MED_DOWN"
-	fastdown       = "FAST_DOWN"
-	tag            = progName + "/" + ver
-	layout         = "Mon Jan 02 15:04:05 2006"
-	END            = 65535
-	procWidth      = 20
-	notifyCmd      = "notify-send " + progName
-	arrayLen       = 128 // max key+key+key events: 8
-	sampleConf     = `
+	progName      = "Swipe"
+	ver           = "5.0"
+	stdBuf        = "stdbuf"
+	swipeStart    = "GESTURE_SWIPE_BEGIN"
+	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
+	swipeEnd      = "GESTURE_SWIPE_END"
+	touchStart    = "TOUCH_DOWN"
+	touchEnd      = "TOUCH_UP"
+	POINTER_AXIS  = "POINTER_AXIS"
+	octoberTwoFin = "POINTER_SCROLL_FINGER"
+	oct2FinDelay  = 250 * time.Millisecond
+	touchMin      = 1
+	up            = "UP"
+	down          = "DOWN"
+	left          = "LEFT"
+	right         = "RIGHT"
+	fastup        = "FAST_UP"
+	mediumUp      = "MED_UP"
+	mediumDown    = "MED_DOWN"
+	fastdown      = "FAST_DOWN"
+	tag           = progName + "/" + ver
+	layout        = "Mon Jan 02 15:04:05 2006"
+	END           = 65535
+	procWidth     = 20
+	notifyCmd     = "notify-send " + progName
+	arrayLen      = 128 // max key+key+key events: 8
+	sampleConf    = `
 # 2 Button Touchpad 
 2right: "KEY_LEFTALT + KEY_LEFT"
 2left:  "KEY_LEFTALT + KEY_RIGHT"
@@ -298,6 +300,32 @@ func main() {
 
 	cKbd := C.CString(kbd)
 	C.getFd(cKbd)
+
+	// launch panel applet.
+	go func() {
+		if statusIconDisabled {
+			return
+		}
+		var pyFile, ico string
+		var err error
+		if pyFile, err = writeFile(1); err != nil {
+			return
+		}
+		if ico, err = writeFile(0); err != nil {
+			return
+		}
+
+		//cmd := exec.Command("python3", pyFile, ico, "&", "disown")
+		cmd := exec.Command("python3", pyFile, ico)
+		err = cmd.Run()
+		_ = os.Remove(pyFile)
+		_ = os.Remove(ico)
+		if err == nil {
+			// user wants to exit by left click.
+			os.Exit(0)
+		}
+	}()
+
 	libinput()
 	fmt.Println("Bye bye!")
 
@@ -351,6 +379,9 @@ func parseArgs() {
 			if strings.Contains(arg, "debug") || arg == "d" || arg == "--d" || arg == "-d" {
 				deBug = true
 				C.enableDebug()
+			}
+			if strings.Contains(arg, "noIndicator") || arg == "q" || arg == "--q" || arg == "-q" {
+				statusIconDisabled = true
 			}
 			if strings.Contains(arg, "available") || arg == "a" || arg == "--a" || arg == "-a" {
 				showDevices()
@@ -466,6 +497,7 @@ func showhelp() {
 	fmt.Println("  -k  --keys             show available keys")
 	fmt.Println("  -i  /dev/input/event1  kbd device to use")
 	fmt.Println("  -a  --available        show available devices")
+	fmt.Println("  -q  --noIndicator      disable status icon")
 
 }
 
