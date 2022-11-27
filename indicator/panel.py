@@ -7,7 +7,6 @@ import os
 import time
 from datetime import datetime
 import warnings
-import psutil
 import gi
 gi.require_versions({'Gtk': '3.0','XApp': '1.0'})
 from gi.repository import Gtk, XApp
@@ -17,11 +16,12 @@ warnings.filterwarnings("ignore")
 
 NAME = "Swipe"
 DESC =  NAME + " Linux Gestures"
-VERSION = "5.0"
+VERSION = "5.0.a"
 WEBSITE = "https://github.com/evuraan/Swipe"
 
 class SwipeIcon:
     def __init__(self):
+        self.state = False 
         self.left_Menu()
         self.rightMenu()
         self.status_icon = XApp.StatusIcon()
@@ -30,6 +30,7 @@ class SwipeIcon:
         self.status_icon.set_primary_menu (self.left_menu)
         self.status_icon.set_secondary_menu (self.right_menu)
         self.status_icon.set_tooltip_text(DESC)
+        self.state = True 
 
     def left_Menu(self):
         self.left_menu = Gtk.Menu()
@@ -39,7 +40,7 @@ class SwipeIcon:
         self.left_menu.append(about)
 
         quit = Gtk.ImageMenuItem(label="Quit", image=Gtk.Image.new_from_icon_name("application-exit", 16))
-        quit.connect("activate", Gtk.main_quit)
+        quit.connect("activate", self.quitter)
         self.left_menu.append(quit)
         self.left_menu.show_all()
 
@@ -52,6 +53,17 @@ class SwipeIcon:
 
         self.right_menu.show_all()
 
+    def getState(self):
+        return self.state
+
+    def quitter(self, x):
+        try:
+            Gtk.main_quit()
+            os.remove(sys.argv[0])
+            os.remove(sys.argv[1])
+        except:
+            pass
+        os._exit(0)
 
     def aboutDialog(self, widget):
         about_dialog = Gtk.AboutDialog()
@@ -71,10 +83,22 @@ class SwipeIcon:
         about_dialog.destroy()
 
 def if_caller_gone(pid):
+    pidFo = "/proc/" + pid
     while True:
-        if not psutil.pid_exists(pid):
+        if not os.path.isdir(pidFo):
             os._exit(1)
         time.sleep(1.1)
+
+def cleanup():
+    while True:
+        if app.getState():
+            break
+        time.sleep(3)
+    try:
+        #os.remove(sys.argv[1])
+        os.remove(sys.argv[0])
+    except:
+        pass 
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
@@ -83,6 +107,8 @@ if __name__ == "__main__":
     ICON = sys.argv[1]
     PIXBUF = Pixbuf.new_from_file(sys.argv[1])
     app = SwipeIcon()
-    t1 = threading.Thread(target=if_caller_gone, args=((int(sys.argv[2])),))
+    t1 = threading.Thread(target=if_caller_gone, args=(sys.argv[2],))
     t1.start()
+    t2 = threading.Thread(target=cleanup)
+    t2.start()
     Gtk.main()

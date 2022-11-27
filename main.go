@@ -206,7 +206,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "5.0"
+	ver           = "5.0.a"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -323,6 +323,8 @@ func main() {
 		if err == nil {
 			// user wants to exit by left click.
 			os.Exit(0)
+		} else if err.Error() == "signal: killed" {
+			os.Exit(1)
 		}
 	}()
 
