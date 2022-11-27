@@ -155,14 +155,11 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"os/signal"
 	"regexp"
 	"strings"
 	"sync"
 	"time"
 	"unsafe"
-
-	"golang.org/x/sys/unix"
 )
 
 var (
@@ -304,15 +301,6 @@ func main() {
 	cKbd := C.CString(kbd)
 	C.getFd(cKbd)
 
-	var cmd *exec.Cmd
-	signals := make(chan os.Signal, 2)
-	signal.Notify(signals, unix.SIGTERM, unix.SIGINT, unix.SIGTSTP)
-	go func() {
-		<-signals
-		if cmd != nil {
-			_ = cmd.Process.Signal(os.Interrupt)
-		}
-	}()
 	// launch panel applet.
 	go func() {
 		if statusIconDisabled {
@@ -327,8 +315,7 @@ func main() {
 			return
 		}
 
-		//cmd := exec.Command("python3", pyFile, ico, "&", "disown")
-		cmd = exec.Command("python3", pyFile, ico)
+		cmd := exec.Command("python3", pyFile, ico, fmt.Sprintf("%d", os.Getpid()))
 
 		err = cmd.Run()
 		_ = os.Remove(pyFile)
