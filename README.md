@@ -19,6 +19,11 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
 ## Available variants/branches 
 - Branch [modular](https://github.com/evuraan/Swipe/tree/modular) - Swipe/1.06e - Use with `xdotool` or [`edotool`](https://github.com/evuraan/edotool) or `ydotool` or `xte` etc. 
  
+## What's new in ver 5.x?
+ - Added an indicator applet. 
+ - Use `--noIndicator` or `-q` option to disable status indicator.
+<img src="./images/swipe_indicator_main.jpg"  width='300'>
+
 ## Requirements 
 - libinput-tools  
   ```bash 
@@ -57,6 +62,7 @@ Usage: ./swipe
   -k  --keys             show available keys
   -i  /dev/input/event1  kbd device to use
   -a  --available        show available devices
+  -q  --noIndicator      disable status icon
 ```
 - If no config file is specified, `Swipe` would use a default configuration. 
 - If an appropriate `kbd` device cannot be found, `Swipe` will ask you to specify a suitable device using the `-i` option.
