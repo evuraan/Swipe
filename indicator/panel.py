@@ -11,6 +11,7 @@ import gi
 gi.require_versions({'Gtk': '3.0','XApp': '1.0'})
 from gi.repository import Gtk, XApp
 from gi.repository.GdkPixbuf import Pixbuf
+import socket
 
 warnings.filterwarnings("ignore")
 
@@ -31,6 +32,29 @@ class SwipeIcon:
         self.status_icon.set_secondary_menu (self.right_menu)
         self.status_icon.set_tooltip_text(DESC)
         self.state = True 
+        t3 = threading.Thread(target=self.icon_changer)
+        t3.start()
+
+
+    def icon_changer(self):
+        if len(sys.argv) >= 5:
+            sockfile = sys.argv[4]
+            icon0 = sys.argv[3]
+            icon1 = sys.argv[2]
+            print("socket", sockfile)
+            try:
+                s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                #s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                s.bind(sockfile)
+                s.listen(9)
+            except Exception as e:
+                print("Socker err", e)
+                os._exit(1)
+            while True:
+                conn, addr = s.accept()
+                data = conn.recv(8192).decode()
+                print("data", data)
+                conn.close()
 
     def left_Menu(self):
         self.left_menu = Gtk.Menu()

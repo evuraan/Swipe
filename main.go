@@ -153,6 +153,7 @@ import "C"
 import (
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"os/exec"
 	"regexp"
@@ -206,7 +207,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "5.0.a"
+	ver           = "5.0.d"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -279,16 +280,25 @@ func main() {
 	fmt.Printf("Copyright © 2021 Evuraan <evuraan@gmail.com>. All rights reserved.\nThis program comes with ABSOLUTELY NO WARRANTY.\n")
 	print("Howdy!")
 
+	sock := fmt.Sprintf("%s/swipe-%d.sock", os.TempDir(), time.Now().UnixNano())
+	sockConn, err := net.Dial("unix", sock)
+	fmt.Println("sockConn errr", err)
+	notifySocket := err == nil
+	fmt.Println("notifySocket", notifySocket)
+
 	workChan = make(chan string, 2)
 	go func() {
 		for cmdString := range workChan {
 			if len(cmdString) > 0 {
 				go func() {
 					_ = doRun(cmdString)
+						_,_ = sockConn.Write([]byte(cmdString))
+					}
 				}()
 			}
 		}
 	}()
+
 	if len(kbd) < 1 {
 		kbd = getDeviceForPattern(keyboard)
 	}
@@ -306,8 +316,11 @@ func main() {
 		if statusIconDisabled {
 			return
 		}
-		var pyFile, ico string
+		var pyFile, ico, icoChange string
 		var err error
+		if icoChange, err = writeFile(2); err != nil {
+			return
+		}
 		if pyFile, err = writeFile(1); err != nil {
 			return
 		}
@@ -315,11 +328,15 @@ func main() {
 			return
 		}
 
-		cmd := exec.Command("python3", pyFile, ico, fmt.Sprintf("%d", os.Getpid()))
+		// syntax: python3 fu.py icon 3434 iconChange socket
+		cmd := exec.Command("python3", pyFile, ico, fmt.Sprintf("%d", os.Getpid()), icoChange, sock)
+		fmt.Println("cmd", cmd)
+		return
 
 		err = cmd.Run()
 		_ = os.Remove(pyFile)
 		_ = os.Remove(ico)
+		_ = os.Remove(icoChange)
 		if err == nil {
 			// user wants to exit by left click.
 			os.Exit(0)
