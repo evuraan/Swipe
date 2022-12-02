@@ -4,6 +4,7 @@
 import threading
 import sys
 import os
+import socket
 import time
 from datetime import datetime
 import warnings
@@ -11,12 +12,14 @@ import gi
 gi.require_versions({'Gtk': '3.0','XApp': '1.0'})
 from gi.repository import Gtk, XApp
 from gi.repository.GdkPixbuf import Pixbuf
+from queue import Queue
+
 
 warnings.filterwarnings("ignore")
 
 NAME = "Swipe"
 DESC =  NAME + " Linux Gestures"
-VERSION = "5.0.a"
+VERSION = "5.1.a"
 WEBSITE = "https://github.com/evuraan/Swipe"
 
 class SwipeIcon:
@@ -31,6 +34,38 @@ class SwipeIcon:
         self.status_icon.set_secondary_menu (self.right_menu)
         self.status_icon.set_tooltip_text(DESC)
         self.state = True 
+        self.q = Queue()
+        t3 = threading.Thread(target=self.icon_changer)
+        t3.start()
+        t4 = threading.Thread(target=self.blink)
+        t4.start()
+
+
+
+    def icon_changer(self):
+        if len(sys.argv) >= 5:
+            sockfile = sys.argv[4]
+            try:
+                s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                s.bind(sockfile)
+                os.chmod(sockfile, 0o600)
+                s.listen(9)
+                conn, _ = s.accept()
+            except Exception as e:
+                print("Socker err", e)
+                os._exit(1)
+            while True:
+                conn.recv(1024)
+                self.q.put(1)
+                
+
+    def blink(self):
+        while True:
+            x = self.q.get()
+            self.status_icon.set_icon_name(sys.argv[3])
+            time.sleep(0.3)
+            self.status_icon.set_icon_name(ICON)
+            self.q.task_done()
 
     def left_Menu(self):
         self.left_menu = Gtk.Menu()
@@ -61,6 +96,8 @@ class SwipeIcon:
             Gtk.main_quit()
             os.remove(sys.argv[0])
             os.remove(sys.argv[1])
+            os.remove(sys.argv[3])
+            os.remove(sys.argv[4])
         except:
             pass
         os._exit(0)
