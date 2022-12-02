@@ -208,7 +208,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "5.1.b"
+	ver           = "5.1.c"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -278,8 +278,10 @@ type eventLib struct {
 type conduitStruct struct {
 	state bool
 	sync.RWMutex
-	sockPath string
-	conn     net.Conn
+	sockPath       string
+	conn           net.Conn
+	isDisabled     bool
+	initInProgress bool
 }
 
 func main() {
@@ -289,6 +291,7 @@ func main() {
 	print("Howdy!")
 
 	conduit.sockPath = fmt.Sprintf("%s/swipe-%d.sock", os.TempDir(), time.Now().UnixNano())
+	conduit.isDisabled = statusIconDisabled
 	workChan = make(chan string, 2)
 	go func() {
 		for cmdString := range workChan {
@@ -538,6 +541,10 @@ func sockCheck(sockPath string) bool {
 func (c *conduitStruct) notify() bool {
 	c.RLock()
 	defer c.RUnlock()
+	if c.isDisabled {
+		return false // nae bother any further
+	}
+
 	if c.state {
 		_, err := c.conn.Write([]byte("event!"))
 		return err == nil
@@ -545,6 +552,12 @@ func (c *conduitStruct) notify() bool {
 		go func() {
 			c.Lock()
 			defer c.Unlock()
+			if c.initInProgress {
+				// another init attempt in progress, backoff
+				return
+			}
+
+			c.initInProgress = true
 			if sockCheck(c.sockPath) {
 				if conn, err := net.Dial("unix", c.sockPath); err == nil {
 					if _, err = conn.Write([]byte("init")); err == nil {
