@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 
 NAME = "Swipe"
 DESC =  NAME + " Linux Gestures"
-VERSION = "5.0.a"
+VERSION = "5.1.a"
 WEBSITE = "https://github.com/evuraan/Swipe"
 
 class SwipeIcon:
@@ -39,22 +39,23 @@ class SwipeIcon:
     def icon_changer(self):
         if len(sys.argv) >= 5:
             sockfile = sys.argv[4]
-            icon0 = sys.argv[3]
-            icon1 = sys.argv[2]
-            print("socket", sockfile)
             try:
                 s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-                #s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 s.bind(sockfile)
                 s.listen(9)
+                conn, addr = s.accept()
             except Exception as e:
                 print("Socker err", e)
                 os._exit(1)
             while True:
-                conn, addr = s.accept()
-                data = conn.recv(8192).decode()
-                print("data", data)
-                conn.close()
+                data = conn.recv(1024)
+                t3 = threading.Thread(target=self.blink)
+                t3.start()
+
+    def blink(self):
+        self.status_icon.set_icon_name(sys.argv[3])
+        time.sleep(0.3)
+        self.status_icon.set_icon_name(ICON)
 
     def left_Menu(self):
         self.left_menu = Gtk.Menu()
@@ -85,6 +86,8 @@ class SwipeIcon:
             Gtk.main_quit()
             os.remove(sys.argv[0])
             os.remove(sys.argv[1])
+            os.remove(sys.argv[3])
+            os.remove(sys.argv[4])
         except:
             pass
         os._exit(0)

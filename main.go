@@ -173,6 +173,7 @@ var (
 	workChan           chan string
 	kbd                = ""
 	configFile         = ""
+	conduit            = &conduitStruct{}
 
 	evt1 = map[string]string{}
 	// 2 finger touchPad events
@@ -207,7 +208,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "5.0.d"
+	ver           = "5.1.a"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -274,26 +275,26 @@ type eventLib struct {
 	eventCodes map[string]int
 }
 
+type conduitStruct struct {
+	state bool
+	sync.RWMutex
+	sockPath string
+	conn     net.Conn
+}
+
 func main() {
 
 	parseArgs()
 	fmt.Printf("Copyright © 2021 Evuraan <evuraan@gmail.com>. All rights reserved.\nThis program comes with ABSOLUTELY NO WARRANTY.\n")
 	print("Howdy!")
 
-	sock := fmt.Sprintf("%s/swipe-%d.sock", os.TempDir(), time.Now().UnixNano())
-	sockConn, err := net.Dial("unix", sock)
-	fmt.Println("sockConn errr", err)
-	notifySocket := err == nil
-	fmt.Println("notifySocket", notifySocket)
-
+	conduit.sockPath = fmt.Sprintf("%s/swipe-%d.sock", os.TempDir(), time.Now().UnixNano())
 	workChan = make(chan string, 2)
 	go func() {
 		for cmdString := range workChan {
 			if len(cmdString) > 0 {
 				go func() {
 					_ = doRun(cmdString)
-						_,_ = sockConn.Write([]byte(cmdString))
-					}
 				}()
 			}
 		}
@@ -329,9 +330,8 @@ func main() {
 		}
 
 		// syntax: python3 fu.py icon 3434 iconChange socket
-		cmd := exec.Command("python3", pyFile, ico, fmt.Sprintf("%d", os.Getpid()), icoChange, sock)
-		fmt.Println("cmd", cmd)
-		return
+		cmd := exec.Command("python3", pyFile, ico, fmt.Sprintf("%d", os.Getpid()), icoChange, conduit.sockPath)
+		//return
 
 		err = cmd.Run()
 		_ = os.Remove(pyFile)
@@ -530,6 +530,32 @@ func (eventLibPtr *eventLib) showKeys() {
 	fmt.Printf("%d keys available\n", len(self.eventCodes))
 }
 
+func sockCheck(sockPath string) bool {
+	_, err := os.Stat(sockPath)
+	return err == nil
+}
+
+func (c *conduitStruct) notify() bool {
+	c.RLock()
+	defer c.RUnlock()
+	if c.state {
+		_, err := c.conn.Write([]byte("event!"))
+		return err == nil
+	} else {
+		go func() {
+			c.Lock()
+			defer c.Unlock()
+			if sockCheck(c.sockPath) {
+				if conn, err := net.Dial("unix", c.sockPath); err == nil {
+					c.conn = conn
+					c.state = true
+				}
+			}
+		}()
+	}
+	return false
+}
+
 func (eventLibPtr *eventLib) handleEvent(event string, evtType int) bool {
 	if len(event) < 1 {
 		return false
@@ -582,6 +608,7 @@ func (eventLibPtr *eventLib) handleEvent(event string, evtType int) bool {
 	}
 	eventArray[k] = END
 	//C.handleEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
+	go conduit.notify()
 	if comboBool {
 		C.handleComboEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
 	} else {
