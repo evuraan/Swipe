@@ -12,6 +12,8 @@ gi.require_versions({'Gtk': '3.0','XApp': '1.0'})
 from gi.repository import Gtk, XApp
 from gi.repository.GdkPixbuf import Pixbuf
 import socket
+from queue import Queue
+
 
 warnings.filterwarnings("ignore")
 
@@ -32,8 +34,12 @@ class SwipeIcon:
         self.status_icon.set_secondary_menu (self.right_menu)
         self.status_icon.set_tooltip_text(DESC)
         self.state = True 
+        self.q = Queue()
         t3 = threading.Thread(target=self.icon_changer)
         t3.start()
+        t4 = threading.Thread(target=self.blink)
+        t4.start()
+
 
 
     def icon_changer(self):
@@ -50,13 +56,16 @@ class SwipeIcon:
                 os._exit(1)
             while True:
                 data = conn.recv(1024)
-                t3 = threading.Thread(target=self.blink)
-                t3.start()
+                self.q.put(1)
+                
 
     def blink(self):
-        self.status_icon.set_icon_name(sys.argv[3])
-        time.sleep(0.3)
-        self.status_icon.set_icon_name(ICON)
+        while True:
+            x = self.q.get()
+            self.status_icon.set_icon_name(sys.argv[3])
+            time.sleep(0.3)
+            self.status_icon.set_icon_name(ICON)
+            self.q.task_done()
 
     def left_Menu(self):
         self.left_menu = Gtk.Menu()
