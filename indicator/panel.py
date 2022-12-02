@@ -4,6 +4,7 @@
 import threading
 import sys
 import os
+import socket
 import time
 from datetime import datetime
 import warnings
@@ -11,7 +12,6 @@ import gi
 gi.require_versions({'Gtk': '3.0','XApp': '1.0'})
 from gi.repository import Gtk, XApp
 from gi.repository.GdkPixbuf import Pixbuf
-import socket
 from queue import Queue
 
 
@@ -50,12 +50,12 @@ class SwipeIcon:
                 s.bind(sockfile)
                 os.chmod(sockfile, 0o600)
                 s.listen(9)
-                conn, addr = s.accept()
+                conn, _ = s.accept()
             except Exception as e:
                 print("Socker err", e)
                 os._exit(1)
             while True:
-                data = conn.recv(1024)
+                conn.recv(1024)
                 self.q.put(1)
                 
 
