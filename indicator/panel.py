@@ -42,6 +42,7 @@ class SwipeIcon:
             try:
                 s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
                 s.bind(sockfile)
+                os.chmod(sockfile, 0o600)
                 s.listen(9)
                 conn, addr = s.accept()
             except Exception as e:
