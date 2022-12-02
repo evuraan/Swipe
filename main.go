@@ -208,7 +208,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "5.1.a"
+	ver           = "5.1.b"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -547,8 +547,10 @@ func (c *conduitStruct) notify() bool {
 			defer c.Unlock()
 			if sockCheck(c.sockPath) {
 				if conn, err := net.Dial("unix", c.sockPath); err == nil {
-					c.conn = conn
-					c.state = true
+					if _, err = conn.Write([]byte("init")); err == nil {
+						c.conn = conn
+						c.state = true
+					}
 				}
 			}
 		}()
