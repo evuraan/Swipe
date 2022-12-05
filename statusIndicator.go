@@ -3,12 +3,21 @@ package main
 import (
 	"embed"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
+	"sync"
 	"time"
 
 	"golang.org/x/sys/unix"
 )
+
+type conduitStruct struct {
+	sync.RWMutex
+	fifoPath   string
+	isDisabled bool
+	filePtr    *os.File
+}
 
 //go:embed images/Swipe_300x300.png indicator/panel.py images/Swipe.png
 var embedFs embed.FS
@@ -49,7 +58,6 @@ func setupPanelConduit() {
 		return
 	}
 	if file, err := os.OpenFile(fifoPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0600); err == nil {
-		conduit.state = true
 		conduit.filePtr = file
 		conduit.isDisabled = statusIconDisabled
 		conduit.fifoPath = fifoPath
@@ -83,4 +91,26 @@ func setupPanelConduit() {
 	} else if err.Error() == "signal: killed" {
 		os.Exit(1)
 	}
+}
+
+func (c *conduitStruct) notifyFifo() bool {
+	c.RLock()
+	defer c.RUnlock()
+
+	if c.isDisabled {
+		return false
+	}
+
+	if _, err := io.WriteString(c.filePtr, "evt\n"); err == nil {
+		return true
+	}
+
+	go func() {
+		fmt.Fprintf(os.Stderr, "Error 3.1 - disabling further notifications\n")
+		c.Lock()
+		defer c.Unlock()
+		c.isDisabled = true
+	}()
+
+	return false
 }

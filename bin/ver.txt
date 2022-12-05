@@ -1,1 +1,1 @@
-Version: Swipe/6.0c
+Version: Swipe/6.0d

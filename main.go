@@ -206,7 +206,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "6.0c"
+	ver           = "6.0d"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -271,14 +271,6 @@ type moves struct {
 type eventLib struct {
 	sync.RWMutex
 	eventCodes map[string]int
-}
-
-type conduitStruct struct {
-	state bool
-	sync.RWMutex
-	fifoPath   string
-	isDisabled bool
-	filePtr    *os.File
 }
 
 func main() {
@@ -493,19 +485,6 @@ func (eventLibPtr *eventLib) showKeys() {
 		fmt.Println("key --> ", i)
 	}
 	fmt.Printf("%d keys available\n", len(self.eventCodes))
-}
-
-func (c *conduitStruct) notifyFifo() bool {
-	c.RLock()
-	defer c.RUnlock()
-	if c.isDisabled {
-		return false // nae bother any further
-	}
-	if _, err := io.WriteString(c.filePtr, "evt\n"); err == nil {
-		return true
-	}
-
-	return false
 }
 
 func (eventLibPtr *eventLib) handleEvent(event string, evtType int) bool {
