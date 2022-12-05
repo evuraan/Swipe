@@ -153,7 +153,6 @@ import "C"
 import (
 	"fmt"
 	"io"
-	"net"
 	"os"
 	"os/exec"
 	"regexp"
@@ -161,6 +160,8 @@ import (
 	"sync"
 	"time"
 	"unsafe"
+
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -208,7 +209,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "5.1.c"
+	ver           = "6.0a"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -278,10 +279,9 @@ type eventLib struct {
 type conduitStruct struct {
 	state bool
 	sync.RWMutex
-	sockPath       string
-	conn           net.Conn
-	isDisabled     bool
-	initInProgress bool
+	fifoPath   string
+	isDisabled bool
+	filePtr    *os.File
 }
 
 func main() {
@@ -290,8 +290,23 @@ func main() {
 	fmt.Printf("Copyright © 2021 Evuraan <evuraan@gmail.com>. All rights reserved.\nThis program comes with ABSOLUTELY NO WARRANTY.\n")
 	print("Howdy!")
 
-	conduit.sockPath = fmt.Sprintf("%s/swipe-%d.sock", os.TempDir(), time.Now().UnixNano())
-	conduit.isDisabled = statusIconDisabled
+	func() {
+		if statusIconDisabled {
+			return
+		}
+		fifoPath := fmt.Sprintf("%s/swipe%d", os.TempDir(), time.Now().UnixNano())
+		if err := unix.Mkfifo(fifoPath, 0600); err != nil {
+			fmt.Fprintf(os.Stderr, "mkfifo err: %s", err)
+			return
+		}
+		if file, err := os.OpenFile(fifoPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0600); err == nil {
+			conduit.state = true
+			conduit.filePtr = file
+			conduit.isDisabled = statusIconDisabled
+			conduit.fifoPath = fifoPath
+		}
+	}()
+
 	workChan = make(chan string, 2)
 	go func() {
 		for cmdString := range workChan {
@@ -333,13 +348,15 @@ func main() {
 		}
 
 		// syntax: python3 fu.py icon 3434 iconChange socket
-		cmd := exec.Command("python3", pyFile, ico, fmt.Sprintf("%d", os.Getpid()), icoChange, conduit.sockPath)
+		cmd := exec.Command("python3", pyFile, ico, fmt.Sprintf("%d", os.Getpid()), icoChange, conduit.fifoPath)
+		//fmt.Println(cmd)
 		//return
 
 		err = cmd.Run()
 		_ = os.Remove(pyFile)
 		_ = os.Remove(ico)
 		_ = os.Remove(icoChange)
+		_ = os.Remove(conduit.fifoPath)
 		if err == nil {
 			// user wants to exit by left click.
 			os.Exit(0)
@@ -533,41 +550,21 @@ func (eventLibPtr *eventLib) showKeys() {
 	fmt.Printf("%d keys available\n", len(self.eventCodes))
 }
 
-func sockCheck(sockPath string) bool {
-	_, err := os.Stat(sockPath)
+func sockCheck(fifoPath string) bool {
+	_, err := os.Stat(fifoPath)
 	return err == nil
 }
 
-func (c *conduitStruct) notify() bool {
+func (c *conduitStruct) notifyFifo() bool {
 	c.RLock()
 	defer c.RUnlock()
 	if c.isDisabled {
 		return false // nae bother any further
 	}
-
-	if c.state {
-		_, err := c.conn.Write([]byte("event!"))
-		return err == nil
-	} else {
-		go func() {
-			c.Lock()
-			defer c.Unlock()
-			if c.initInProgress {
-				// another init attempt in progress, backoff
-				return
-			}
-
-			c.initInProgress = true
-			if sockCheck(c.sockPath) {
-				if conn, err := net.Dial("unix", c.sockPath); err == nil {
-					if _, err = conn.Write([]byte("init")); err == nil {
-						c.conn = conn
-						c.state = true
-					}
-				}
-			}
-		}()
+	if _, err := io.WriteString(c.filePtr, "evt\n"); err == nil {
+		return true
 	}
+
 	return false
 }
 
@@ -623,7 +620,7 @@ func (eventLibPtr *eventLib) handleEvent(event string, evtType int) bool {
 	}
 	eventArray[k] = END
 	//C.handleEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
-	go conduit.notify()
+	go conduit.notifyFifo()
 	if comboBool {
 		C.handleComboEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
 	} else {
