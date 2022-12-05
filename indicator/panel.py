@@ -18,7 +18,7 @@ warnings.filterwarnings("ignore")
 
 NAME = "Swipe"
 DESC =  NAME + " Linux Gestures"
-VERSION = "6.0b"
+VERSION = "6.0c"
 WEBSITE = "https://github.com/evuraan/Swipe"
 
 class SwipeIcon:

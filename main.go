@@ -154,14 +154,11 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"regexp"
 	"strings"
 	"sync"
 	"time"
 	"unsafe"
-
-	"golang.org/x/sys/unix"
 )
 
 var (
@@ -209,7 +206,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "6.0b"
+	ver           = "6.0c"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -290,23 +287,6 @@ func main() {
 	fmt.Printf("Copyright © 2021 Evuraan <evuraan@gmail.com>. All rights reserved.\nThis program comes with ABSOLUTELY NO WARRANTY.\n")
 	print("Howdy!")
 
-	func() {
-		if statusIconDisabled {
-			return
-		}
-		fifoPath := fmt.Sprintf("%s/swipe%d", os.TempDir(), time.Now().UnixNano())
-		if err := unix.Mkfifo(fifoPath, 0600); err != nil {
-			fmt.Fprintf(os.Stderr, "mkfifo err: %s", err)
-			return
-		}
-		if file, err := os.OpenFile(fifoPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0600); err == nil {
-			conduit.state = true
-			conduit.filePtr = file
-			conduit.isDisabled = statusIconDisabled
-			conduit.fifoPath = fifoPath
-		}
-	}()
-
 	workChan = make(chan string, 2)
 	go func() {
 		for cmdString := range workChan {
@@ -330,47 +310,11 @@ func main() {
 	cKbd := C.CString(kbd)
 	C.getFd(cKbd)
 
-	// launch panel applet.
-	go func() {
-		if statusIconDisabled {
-			return
-		}
-		var pyFile, ico, icoChange string
-		var err error
-		if icoChange, err = writeFile(2); err != nil {
-			return
-		}
-		if pyFile, err = writeFile(1); err != nil {
-			return
-		}
-		if ico, err = writeFile(0); err != nil {
-			return
-		}
-
-		// syntax: python3 fu.py icon 3434 iconChange socket
-		cmd := exec.Command("python3", pyFile, ico, fmt.Sprintf("%d", os.Getpid()), icoChange, conduit.fifoPath)
-		//fmt.Println(cmd)
-		//return
-
-		err = cmd.Run()
-		_ = conduit.filePtr.Close()
-		removeThese := []string{conduit.fifoPath, ico, pyFile, icoChange}
-		for _, j := range removeThese {
-			_ = os.Remove(j)
-		}
-		if err == nil {
-			// user wants to exit by left click.
-			os.Exit(0)
-		} else if err.Error() == "signal: killed" {
-			os.Exit(1)
-		}
-	}()
-
+	go setupPanelConduit()
 	libinput()
 	fmt.Println("Bye bye!")
 
 }
-
 func libinput() {
 
 	launcher := ""
