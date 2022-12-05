@@ -209,7 +209,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "6.0a"
+	ver           = "6.0b"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -353,10 +353,11 @@ func main() {
 		//return
 
 		err = cmd.Run()
-		_ = os.Remove(pyFile)
-		_ = os.Remove(ico)
-		_ = os.Remove(icoChange)
-		_ = os.Remove(conduit.fifoPath)
+		_ = conduit.filePtr.Close()
+		removeThese := []string{conduit.fifoPath, ico, pyFile, icoChange}
+		for _, j := range removeThese {
+			_ = os.Remove(j)
+		}
 		if err == nil {
 			// user wants to exit by left click.
 			os.Exit(0)
@@ -548,11 +549,6 @@ func (eventLibPtr *eventLib) showKeys() {
 		fmt.Println("key --> ", i)
 	}
 	fmt.Printf("%d keys available\n", len(self.eventCodes))
-}
-
-func sockCheck(fifoPath string) bool {
-	_, err := os.Stat(fifoPath)
-	return err == nil
 }
 
 func (c *conduitStruct) notifyFifo() bool {
