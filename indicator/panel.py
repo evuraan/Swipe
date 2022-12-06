@@ -4,7 +4,6 @@
 import threading
 import sys
 import os
-import socket
 import time
 from datetime import datetime
 import warnings
@@ -19,7 +18,7 @@ warnings.filterwarnings("ignore")
 
 NAME = "Swipe"
 DESC =  NAME + " Linux Gestures"
-VERSION = "5.1.a"
+VERSION = "6.0d"
 WEBSITE = "https://github.com/evuraan/Swipe"
 
 class SwipeIcon:
@@ -35,29 +34,23 @@ class SwipeIcon:
         self.status_icon.set_tooltip_text(DESC)
         self.state = True 
         self.q = Queue()
-        t3 = threading.Thread(target=self.icon_changer)
+        t3 = threading.Thread(target=self.icon_changer_fifo)
         t3.start()
         t4 = threading.Thread(target=self.blink)
         t4.start()
 
 
-
-    def icon_changer(self):
+    def icon_changer_fifo(self):
         if len(sys.argv) >= 5:
-            sockfile = sys.argv[4]
+            fifo = sys.argv[4]
             try:
-                s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-                s.bind(sockfile)
-                os.chmod(sockfile, 0o600)
-                s.listen(9)
-                conn, _ = s.accept()
+                with open(fifo) as fi:
+                    while True:
+                        line = fi.readline()
+                        self.q.put(1)
             except Exception as e:
-                print("Socker err", e)
+                print("pipe err", e)
                 os._exit(1)
-            while True:
-                conn.recv(1024)
-                self.q.put(1)
-                
 
     def blink(self):
         while True:
