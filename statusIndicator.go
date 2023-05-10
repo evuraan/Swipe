@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -57,7 +58,7 @@ func setupPanelConduit() {
 		fmt.Fprintf(os.Stderr, "mkfifo err: %s", err)
 		return
 	}
-	if file, err := os.OpenFile(fifoPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0600); err == nil {
+	if file, err := os.OpenFile(filepath.FromSlash(fifoPath), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0600); err == nil {
 		conduit.filePtr = file
 		conduit.isDisabled = statusIconDisabled
 		conduit.fifoPath = fifoPath
@@ -75,6 +76,7 @@ func setupPanelConduit() {
 		return
 	}
 
+	//#nosec G204
 	cmd := exec.Command("python3", pyFile, ico, fmt.Sprintf("%d", os.Getpid()), icoChange, conduit.fifoPath)
 	//fmt.Println(cmd)
 	//return
