@@ -4,6 +4,8 @@
 import threading
 import sys
 import os
+import subprocess
+import syslog
 import time
 from datetime import datetime
 import warnings
@@ -18,12 +20,13 @@ warnings.filterwarnings("ignore")
 
 NAME = "Swipe"
 DESC =  NAME + " Linux Gestures"
-VERSION = "6.0d"
+VERSION = "7.1b"
 WEBSITE = "https://github.com/evuraan/Swipe"
+
 
 class SwipeIcon:
     def __init__(self):
-        self.state = False 
+        self.state = False
         self.left_Menu()
         self.rightMenu()
         self.status_icon = XApp.StatusIcon()
@@ -32,7 +35,7 @@ class SwipeIcon:
         self.status_icon.set_primary_menu (self.left_menu)
         self.status_icon.set_secondary_menu (self.right_menu)
         self.status_icon.set_tooltip_text(DESC)
-        self.state = True 
+        self.state = True
         self.q = Queue()
         t3 = threading.Thread(target=self.icon_changer_fifo)
         t3.start()
@@ -67,10 +70,24 @@ class SwipeIcon:
         about.connect("activate", self.aboutDialog)
         self.left_menu.append(about)
 
+        restart = Gtk.ImageMenuItem(label="Restart", image=Gtk.Image.new_from_icon_name("redo", 16))
+        restart.connect("activate", self.reStarter)
+        self.left_menu.append(restart)
+
+        enableDebug = Gtk.ImageMenuItem(label="Enable Debug", image=Gtk.Image.new_from_icon_name("tools-check-spelling", 16))
+        enableDebug.connect("activate", self.enableDebug)
+        self.left_menu.append(enableDebug)
+
+        rem_debug = Gtk.ImageMenuItem(label="Remove Debug", image=Gtk.Image.new_from_icon_name("gtk-remove", 16))
+        rem_debug.connect("activate", self.disableDebug)
+        self.left_menu.append(rem_debug)
+
         quit = Gtk.ImageMenuItem(label="Quit", image=Gtk.Image.new_from_icon_name("application-exit", 16))
         quit.connect("activate", self.quitter)
         self.left_menu.append(quit)
         self.left_menu.show_all()
+
+
 
     def rightMenu(self):
         self.right_menu = Gtk.Menu()
@@ -84,7 +101,7 @@ class SwipeIcon:
     def getState(self):
         return self.state
 
-    def quitter(self, x):
+    def quitter(self,x):
         try:
             Gtk.main_quit()
             os.remove(sys.argv[0])
@@ -94,6 +111,21 @@ class SwipeIcon:
         except:
             pass
         os._exit(0)
+
+
+    def enableDebug(self,x):
+       restartEnableDebug(sys.argv[2], True)
+       self.quitter(x)
+
+    def disableDebug(self,x):
+       restartEnableDebug(sys.argv[2], False)
+       self.quitter(x)
+
+
+
+    def reStarter(self,x):
+        restartEnableDebug(sys.argv[2], False)
+        self.quitter(x)
 
     def aboutDialog(self, widget):
         about_dialog = Gtk.AboutDialog()
@@ -119,16 +151,55 @@ def if_caller_gone(pid):
             os._exit(1)
         time.sleep(1.1)
 
+def log(msg=""):
+    try:
+        syslog.syslog(msg)
+    except:
+        pass
+
+def getCmd(pid):
+    try:
+        cmdline_path = "/proc/{}/cmdline".format(pid)
+        with open(cmdline_path) as f:
+            x = f.read().replace('\0', ' ')
+        x = x.replace("disown","")
+        splat = x.split(" ")
+        newk = " ".join(splat[1:])
+        return newk
+    except:
+        return False
+
+def restartEnableDebug(pid,enableDebugBOOL):
+    try:
+        exe_path = "/proc/{}/exe".format(pid)
+        launch = os.readlink(exe_path)
+        newk = getCmd(pid)
+        runThis = "{} {} disown".format(launch, newk)
+        if enableDebugBOOL and "-d" not in runThis:
+            runThis = runThis.replace("disown", "-d disown")
+        if not enableDebugBOOL and "-d" in runThis:
+            runThis = runThis.replace("-d","")
+        splaty = runThis.split(" ")
+        splatx = [ i for i in splaty if i != "" ]
+        log("Relaunching Swipe {}".format(splatx))
+        subprocess.Popen(splatx)
+        return True
+    except Exception as e:
+        msg = "failed {} ".format(e)
+        log(msg)
+        return False
+
+
 def cleanup():
     while True:
         if app.getState():
             break
         time.sleep(3)
     try:
-        #os.remove(sys.argv[1])
         os.remove(sys.argv[0])
     except:
         pass 
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
