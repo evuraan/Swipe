@@ -116,7 +116,13 @@ func swipeProcessor(chanPtr *chan string) {
 			wg.Add(1)
 
 			go func() {
+
 				defer wg.Done()
+
+				if strings.Contains(gesture, "\t4") {
+					evtType = 4
+				}
+
 				gesture = strings.ReplaceAll(gesture, "(", "")
 				gesture = strings.ReplaceAll(gesture, "/ ", "/")
 
@@ -134,15 +140,8 @@ func swipeProcessor(chanPtr *chan string) {
 				thisMove := getMoves(&map1)
 				moove := thisMove.analyze()
 
-				fourth := splat[4]
-
 				mu.Lock()
 				defer mu.Unlock()
-
-				if len(fourth) > 0 && fourth[len(fourth)-1] == '4' {
-					// change to 4 finger swipes
-					evtType = 4
-				}
 
 				if len(moove) > 1 {
 					ourMoves[len(ourMoves)] = moove
@@ -185,7 +184,7 @@ func swipeProcessor(chanPtr *chan string) {
 
 			go eventLibStuff.handleEvent(movedTo, evtType)
 			if deBug && notifyBool {
-				letsNotify := fmt.Sprintf("%s %s\n%d", notifyCmd, movedTo, time.Now().Local().Unix())
+				letsNotify := fmt.Sprintf("%s %d-%s\n%d", notifyCmd, evtType, movedTo, time.Now().Local().Unix())
 				workChan <- letsNotify
 			}
 			print("movedTo: %s", movedTo)
