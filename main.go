@@ -188,7 +188,7 @@ var (
 	evt4 = map[string]string{
 		right: "KEY_MUTE",
 		left:  "KEY_MUTE",
-		down:  "KEY_VOLUMDOWN",
+		down:  "KEY_VOLUMEDOWN",
 		up:    "KEY_VOLUMEUP",
 	}
 	evt5 = map[string]string{
