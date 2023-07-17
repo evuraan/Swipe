@@ -16,6 +16,7 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
 - Easy Installation - download (or git clone) and run. 
 - No dependency on Python or Ruby
 - Supports Config files
+- Supports 480+ input events.
 ## Available variants/branches 
 - Branch [modular](https://github.com/evuraan/Swipe/tree/modular) - Swipe/1.06e - Use with `xdotool` or [`edotool`](https://github.com/evuraan/edotool) or `ydotool` or `xte` etc. 
  
@@ -95,6 +96,46 @@ Sample Config:
 5fastdown:   "KEY_LEFTSHIFT + KEY_SPACE"
 	
 ```
+
+Create and edit a custom config to suite your likings:
+
+```bash 
+$ ./swipe -s > mySwipe.conf 
+```
+Make edits to `mySwipe.conf` and launch swipe as `$ ./swipe -c mySwipe.conf`
+
+### Config file example
+<pre>
+# 2 Button Touchpad 
+2right: "KEY_LEFTALT + KEY_LEFT"
+2left:  "KEY_LEFTALT + KEY_RIGHT"
+
+# 3 Button Touchpad Gestures:
+# Zoom in and out
+3right: "KEY_RIGHTCTRL + KEY_0" 
+3left:  "KEY_RIGHTCTRL + KEY_0"
+3up:    "KEY_RIGHTCTRL + KEY_KPPLUS"
+3down:  "KEY_RIGHTCTRL + KEY_MINUS"
+
+# 4 Button Touchpad Gestures:
+# Vol Up/Down/Mute
+4right: "KEY_MUTE"
+4left:  "KEY_MUTE"
+4up:    "KEY_VOLUMEUP"
+4down:  "KEY_VOLUMEDOWN"
+
+# 5 - Touchscreens
+5right:      "KEY_LEFTALT + KEY_LEFT"
+5left:       "KEY_LEFTALT + KEY_RIGHT"
+5up:         "KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN"
+5mediumUp:   "KEY_SPACE"
+5mediumDown: "KEY_LEFTSHIFT + KEY_SPACE"
+5down:       "KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP"
+5fastup:     "KEY_SPACE"
+5fastdown:   "KEY_LEFTSHIFT + KEY_SPACE"
+</pre>
+
+
 ## Debug option
 Run with `-d` option to have debug info onto the terminal:
 ```bash
