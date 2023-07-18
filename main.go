@@ -186,10 +186,10 @@ var (
 		down:  "KEY_LEFTSHIFT + KEY_SPACE",
 	}
 	evt4 = map[string]string{
-		right: "KEY_LEFTALT + KEY_LEFT",
-		left:  "KEY_LEFTALT + KEY_RIGHT",
-		down:  "KEY_HOME",
-		up:    "KEY_END",
+		right: "KEY_MUTE",
+		left:  "KEY_MUTE",
+		down:  "KEY_VOLUMEDOWN",
+		up:    "KEY_VOLUMEUP",
 	}
 	evt5 = map[string]string{
 		right:      "KEY_LEFTALT + KEY_LEFT",
@@ -206,7 +206,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "7.1b"
+	ver           = "7.2a"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -243,10 +243,10 @@ const (
 3down:  "KEY_LEFTSHIFT + KEY_SPACE"
 
 # 4 Button Touchpad Gestures:
-4right: "KEY_LEFTALT + KEY_LEFT"
-4left:  "KEY_LEFTALT + KEY_RIGHT"
-4up:    "KEY_HOME"
-4down:  "KEY_END"
+4right: "KEY_MUTE"
+4left:  "KEY_MUTE"
+4up:    "KEY_VOLUMEUP"
+4down:  "KEY_VOLUMEDOWN"
 
 # 5 - Touchscreens
 5right:      "KEY_LEFTALT + KEY_LEFT"
@@ -283,9 +283,9 @@ func main() {
 	go func() {
 		for cmdString := range workChan {
 			if len(cmdString) > 0 {
-				go func() {
+				go func(cmdString string) {
 					_ = doRun(cmdString)
-				}()
+				}(cmdString)
 			}
 		}
 	}()
@@ -335,7 +335,16 @@ func libinput() {
 func parseArgs() {
 	argc := len(os.Args)
 	if argc > 1 {
-		for i, arg := range os.Args {
+		for _, arg := range os.Args {
+
+			if strings.Contains(arg, "debug") || arg == "d" || arg == "--d" || arg == "-d" {
+				deBug = true
+				C.enableDebug()
+			}
+
+			if strings.Contains(arg, "noIndicator") || arg == "q" || arg == "--q" || arg == "-q" {
+				statusIconDisabled = true
+			}
 			if strings.Contains(arg, "help") || arg == "h" || arg == "--h" || arg == "-h" || arg == "?" {
 				showhelp()
 				os.Exit(0)
@@ -352,17 +361,14 @@ func parseArgs() {
 				fmt.Println("Version:", tag)
 				os.Exit(0)
 			}
-			if strings.Contains(arg, "debug") || arg == "d" || arg == "--d" || arg == "-d" {
-				deBug = true
-				C.enableDebug()
-			}
-			if strings.Contains(arg, "noIndicator") || arg == "q" || arg == "--q" || arg == "-q" {
-				statusIconDisabled = true
-			}
+		
 			if strings.Contains(arg, "available") || arg == "a" || arg == "--a" || arg == "-a" {
 				showDevices()
 				os.Exit(0)
 			}
+		}
+
+		for i, arg := range os.Args {
 			if arg == "-c" {
 				nextArg := i + 1
 				if argc > nextArg {
