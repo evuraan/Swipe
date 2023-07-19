@@ -187,7 +187,7 @@ var (
 	}
 	evt4 = map[string]string{
 		right: "KEY_MUTE",
-		left:  "KEY_MUTE",
+		left:  "exec:/tools/piper/piper/swipe_action.sh",
 		down:  "KEY_VOLUMEDOWN",
 		up:    "KEY_VOLUMEUP",
 	}
@@ -206,7 +206,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "7.2a"
+	ver           = "7.2c beta exec_support"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -230,6 +230,8 @@ const (
 	END           = 65535
 	procWidth     = 20
 	notifyCmd     = "notify-send " + progName
+	// so we dont fork bomb ourselves.
+	exectTSLimit  = 6 * time.Second
 	arrayLen      = 128 // max key+key+key events: 8
 	sampleConf    = `
 # 2 Button Touchpad 
@@ -271,6 +273,7 @@ type moves struct {
 type eventLib struct {
 	sync.RWMutex
 	eventCodes map[string]int
+	lastExecTimestamp time.Time
 }
 
 func main() {
@@ -493,6 +496,37 @@ func (eventLibPtr *eventLib) showKeys() {
 	fmt.Printf("%d keys available\n", len(self.eventCodes))
 }
 
+// execEvent handles the event where we have to execute an arbitrary command
+func (e *eventLib) execEvent(toRun string) bool {
+	//left:  "exec:/tools/piper/piper/swipe_action.sh",
+	if toRun == "" {
+		return false
+	}
+
+	curTime := time.Now()
+	e.RLock()
+	lastVal := e.lastExecTimestamp
+	e.RUnlock()
+
+	if curTime.Sub(lastVal) > exectTSLimit  {
+		// we must execute toRun.
+		print("Running cmd %s", toRun)
+		go func(){
+			e.Lock()
+			e.lastExecTimestamp = time.Now()
+			e.Unlock()
+			if err := runThis(toRun); err != nil {
+				print("Errr while running %s: %s", toRun, err)
+			} else {
+				print("Ran cmd %s", toRun)
+			}
+		}()
+		return true 
+	}
+	print("Too early to run %s", toRun)
+	return false
+}
+
 func (eventLibPtr *eventLib) handleEvent(event string, evtType int) bool {
 	if len(event) < 1 {
 		return false
@@ -525,6 +559,10 @@ func (eventLibPtr *eventLib) handleEvent(event string, evtType int) bool {
 	splat := strings.Split(cmd, "+")
 	if len(splat) < 1 {
 		return false
+	}
+
+	if strings.HasPrefix(cmd,"exec:" ){
+		return eventLibPtr.execEvent(cmd[len("exec:"):])
 	}
 
 	k := 0
