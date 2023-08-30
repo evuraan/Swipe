@@ -206,7 +206,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "7.2a"
+	ver           = "7.3b"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -221,10 +221,10 @@ const (
 	down          = "DOWN"
 	left          = "LEFT"
 	right         = "RIGHT"
-	fastup        = "FAST_UP"
-	mediumUp      = "MED_UP"
-	mediumDown    = "MED_DOWN"
-	fastdown      = "FAST_DOWN"
+	fastup        = "FASTUP"
+	mediumUp      = "MEDIUMUP"
+	mediumDown    = "MEDIUMDOWN"
+	fastdown      = "FASTDOWN"
 	tag           = progName + "/" + ver
 	layout        = "Mon Jan 02 15:04:05 2006"
 	END           = 65535

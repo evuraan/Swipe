@@ -104,8 +104,7 @@ func touchProcessor(chanPtr *chan string) {
 	const evtType = 5
 	go eventLibStuff.handleEvent(movedTo, evtType)
 	if deBug && notifyBool {
-		letsNotify := fmt.Sprintf("%s %s\n%d", notifyCmd, movedTo, time.Now().Local().Unix())
-		workChan <- letsNotify
+		workChan <- fmt.Sprintf("%s %s\n%d", notifyCmd, movedTo, time.Now().Local().Unix())
 	}
 	print("movedTo: %s", movedTo)
 	print("fingers: %d", fingers)
