@@ -73,40 +73,26 @@ func touchProcessor(chanPtr *chan string) {
 	}()
 
 	fingers++
-	movedTo := ""
+	touchEvent := fmt.Sprintf("TOUCH%d", fingers)
 	switch {
 	case xdelta >= ydelta && ydAbs >= xdAbs:
-
-		switch fingers {
-		case 3, 4:
-			movedTo = fastup
-		case 2:
-			movedTo = mediumUp
-		default:
-			movedTo = up
-		}
+		touchEvent += "UP"
 	case ydelta >= xdelta && xdAbs >= ydAbs:
-		movedTo = left
+		touchEvent += "LEFT"
 	case xdelta >= ydelta && xdAbs >= ydAbs:
-		movedTo = right
+		touchEvent += "RIGHT"
 	default:
+		touchEvent += "DOWN"
 
-		switch fingers {
-		case 3, 4:
-			movedTo = fastdown
-		case 2:
-			movedTo = mediumDown
-		default:
-			movedTo = down
-		}
 	}
 
 	const evtType = 5
-	go eventLibStuff.handleEvent(movedTo, evtType)
+	go eventLibStuff.handleEvent(touchEvent, evtType)
 	if deBug && notifyBool {
-		workChan <- fmt.Sprintf("%s %s\n%d", notifyCmd, movedTo, time.Now().Local().Unix())
+		workChan <- fmt.Sprintf("%s %s\n%d", notifyCmd, touchEvent, time.Now().Local().Unix())
 	}
-	print("movedTo: %s", movedTo)
+
+	print("touchEvent: %s", touchEvent)
 	print("fingers: %d", fingers)
 
 }
