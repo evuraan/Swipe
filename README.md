@@ -115,6 +115,8 @@ $ ./swipe -s > mySwipe.conf
 Make edits to `mySwipe.conf` and launch swipe as `$ ./swipe -c mySwipe.conf`
 
 ### Config file example
+This is config the author currently uses:
+
 <pre>
 # 2 Button Touchpad 
 2right: "KEY_LEFTALT + KEY_LEFT"
@@ -130,29 +132,20 @@ Make edits to `mySwipe.conf` and launch swipe as `$ ./swipe -c mySwipe.conf`
 # 4 Button Touchpad Gestures:
 # Vol Up/Down/Mute
 4right: "KEY_MUTE"
-4left:  "KEY_MUTE"
+4left:  "KEY_LEFTALT + KEY_RIGHTCTRL + KEY_P"
 4up:    "KEY_VOLUMEUP"
 4down:  "KEY_VOLUMEDOWN"
 
 # 5 - Touchscreens
-touch1left:  "KEY_LEFTALT + KEY_LEFT"
-touch1right:  "KEY_LEFTALT + KEY_RIGHT"
+touch1up:  "KEY_SPACE"
+touch1down: "KEY_RIGHTSHIFT + KEY_SPACE"
+touch1left:  "KEY_LEFTALT + KEY_RIGHT"
+touch1right:  "KEY_LEFTALT + KEY_LEFT"
 
-touch2up:  "KEY_UP"
-touch2down: "KEY_DOWN"
-touch2left: "KEY_LEFTALT + KEY_LEFT"
-touch2right: "KEY_LEFTALT + KEY_RIGHT"
-
-touch3up: "KEY_UP"
-touch3down: "KEY_DOWN"
-touch3left: "KEY_LEFTALT + KEY_LEFT"
-touch3right: "KEY_LEFTALT + KEY_RIGHT"
-
-touch4up: "KEY_UP"
-touch4down: "KEY_DOWN"
-touch4left: "KEY_LEFTALT + KEY_LEFT"
-touch4right: "KEY_LEFTALT + KEY_RIGHT"
-
+touch2up:  "KEY_RIGHTCTRL + KEY_KPPLUS"
+touch2down: "KEY_RIGHTCTRL + KEY_MINUS"
+touch2left: "KEY_LEFTALT + KEY_RIGHT"
+touch2right: "KEY_LEFTALT + KEY_LEFT"
 </pre>
 
 
