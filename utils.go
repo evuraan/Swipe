@@ -367,16 +367,6 @@ func parseConfig(configFile string) {
 			}
 		}
 
-		// 5: Touchscreen events
-		lookFor5 := "5" + directions[i]
-		touchScreen, ok := someDict[lookFor5]
-		if ok {
-			if len(touchScreen) > 1 {
-				evt5[key] = touchScreen
-				j++
-			}
-		}
-
 		// evt2  2 finger touchPad events
 		lookFor2 := "2" + directions[i]
 		twoPad, ok := someDict[lookFor2]
@@ -386,8 +376,20 @@ func parseConfig(configFile string) {
 				j++
 			}
 		}
-
 	}
+
+	// touchscreen events are extracted out here.
+	touchEvents := []string{"TOUCH1DOWN", "TOUCH1LEFT", "TOUCH1RIGHT", "TOUCH1UP", "TOUCH2DOWN", "TOUCH2LEFT", "TOUCH2RIGHT", "TOUCH2UP", "TOUCH3DOWN", "TOUCH3LEFT", "TOUCH3RIGHT", "TOUCH3UP", "TOUCH4DOWN", "TOUCH4LEFT", "TOUCH4RIGHT", "TOUCH4UP"}
+	for _, event := range touchEvents {
+		x, ok := someDict[event]
+		if ok {
+			if len(x) > 1 {
+				evt5[event] = x
+				j++
+			}
+		}
+	}
+
 	print("Read %d values from the config file", j)
 	print("2 key touchpad events: %v", evt2)
 	print("3 key touchpad events: %v", evt3)
