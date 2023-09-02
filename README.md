@@ -135,14 +135,24 @@ Make edits to `mySwipe.conf` and launch swipe as `$ ./swipe -c mySwipe.conf`
 4down:  "KEY_VOLUMEDOWN"
 
 # 5 - Touchscreens
-5right:      "KEY_LEFTALT + KEY_LEFT"
-5left:       "KEY_LEFTALT + KEY_RIGHT"
-5up:         "KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN"
-5mediumUp:   "KEY_SPACE"
-5mediumDown: "KEY_LEFTSHIFT + KEY_SPACE"
-5down:       "KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP"
-5fastup:     "KEY_SPACE"
-5fastdown:   "KEY_LEFTSHIFT + KEY_SPACE"
+touch1left:  "KEY_LEFTALT + KEY_LEFT"
+touch1right:  "KEY_LEFTALT + KEY_RIGHT"
+
+touch2up:  "KEY_UP"
+touch2down: "KEY_DOWN"
+touch2left: "KEY_LEFTALT + KEY_LEFT"
+touch2right: "KEY_LEFTALT + KEY_RIGHT"
+
+touch3up: "KEY_UP"
+touch3down: "KEY_DOWN"
+touch3left: "KEY_LEFTALT + KEY_LEFT"
+touch3right: "KEY_LEFTALT + KEY_RIGHT"
+
+touch4up: "KEY_UP"
+touch4down: "KEY_DOWN"
+touch4left: "KEY_LEFTALT + KEY_LEFT"
+touch4right: "KEY_LEFTALT + KEY_RIGHT"
+
 </pre>
 
 
