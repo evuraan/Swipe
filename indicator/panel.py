@@ -20,7 +20,7 @@ warnings.filterwarnings("ignore")
 
 NAME = "Swipe"
 DESC =  NAME + " Linux Gestures"
-VERSION = "8.0a"
+VERSION = "8.0b"
 WEBSITE = "https://github.com/evuraan/Swipe"
 
 

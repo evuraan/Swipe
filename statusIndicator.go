@@ -50,6 +50,7 @@ func writeFile(typeInt int) (string, error) {
 
 func setupPanelConduit() {
 	if statusIconDisabled {
+		conduit.isDisabled = true
 		return
 	}
 
@@ -105,6 +106,8 @@ func (c *conduitStruct) notifyFifo() bool {
 
 	if _, err := io.WriteString(c.filePtr, "evt\n"); err == nil {
 		return true
+	} else {
+		fmt.Fprintf(os.Stderr, "notifyFifo err: %s\n", err)
 	}
 
 	go func() {
