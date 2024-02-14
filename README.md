@@ -64,7 +64,7 @@ Usage: ./swipe
 - If an appropriate `kbd` device cannot be found, `Swipe` will ask you to specify a suitable device using the `-i` option.
 
 ## Config
-Generate a sample config file with  -s option:
+Generate a sample config file with  -s option. [Here are some other config examples.](https://github.com/evuraan/Swipe/issues/7)
 
 ```bash
 $ ./swipe -s
