@@ -244,42 +244,43 @@ const (
 	notifyCmd     = "notify-send " + progName
 	arrayLen      = 128 // max key+key+key events: 8
 	sampleConf    = `
-# 2 Button Touchpad 
-2right: "KEY_LEFTALT + KEY_LEFT"
-2left:  "KEY_LEFTALT + KEY_RIGHT"
+# 2 button touchpad gestures
+2right:     "KEY_LEFTALT + KEY_LEFT"
+2left:      "KEY_LEFTALT + KEY_RIGHT"
 
-# 3 Button Touchpad Gestures:
-3right: "KEY_LEFTALT + KEY_LEFT"
-3left:  "KEY_LEFTALT + KEY_RIGHT"
-3up:    "KEY_SPACE"
-3down:  "KEY_LEFTSHIFT + KEY_SPACE"
+# 3 button touchpad gestures
+3right:     "KEY_LEFTALT + KEY_LEFT"
+3left:      "KEY_LEFTALT + KEY_RIGHT"
+3up:        "KEY_SPACE"
+3down:      "KEY_LEFTSHIFT + KEY_SPACE"
 
-# 4 Button Touchpad Gestures:
-4right: "KEY_MUTE"
-4left:  "KEY_MUTE"
-4up:    "KEY_VOLUMEUP"
-4down:  "KEY_VOLUMEDOWN"
+# 4 button touchpad gestures
+4right:     "KEY_MUTE"
+4left:      "KEY_MUTE"
+4up:        "KEY_VOLUMEUP"
+4down:      "KEY_VOLUMEDOWN"
 
-# 5 - Touchscreens
-touch1up:  "KEY_UP"
-touch1down:  "KEY_DOWN"
-touch1left:  "KEY_LEFTALT + KEY_LEFT"
-touch1right:  "KEY_LEFTALT + KEY_RIGHT"
+# Touchscreen gestures
+touch1up:   "KEY_UP"
+touch1down: "KEY_DOWN"
+touch1left: "KEY_LEFTALT + KEY_LEFT"
+touch1right:"KEY_LEFTALT + KEY_RIGHT"
 
-touch2up:  "KEY_UP"
+touch2up:   "KEY_UP"
 touch2down: "KEY_DOWN"
 touch2left: "KEY_LEFTALT + KEY_LEFT"
-touch2right: "KEY_LEFTALT + KEY_RIGHT"
+touch2right:"KEY_LEFTALT + KEY_RIGHT"
 
-touch3up: "KEY_UP"
+touch3up:   "KEY_UP"
 touch3down: "KEY_DOWN"
 touch3left: "KEY_LEFTALT + KEY_LEFT"
-touch3right: "KEY_LEFTALT + KEY_RIGHT"
+touch3right:"KEY_LEFTALT + KEY_RIGHT"
 
-touch4up: "KEY_UP"
+touch4up:   "KEY_UP"
 touch4down: "KEY_DOWN"
 touch4left: "KEY_LEFTALT + KEY_LEFT"
-touch4right: "KEY_LEFTALT + KEY_RIGHT"
+touch4right:"KEY_LEFTALT + KEY_RIGHT"
+
 `
 )
 

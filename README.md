@@ -1,7 +1,9 @@
 # Swipe
-Gestures on Linux. 
+
+Gestures on Linux.
 
 ![Swipe](./images/Swipe_300x300.png)
+
 <p>https://evuraan.info/Swipe/ 
  
 ## Screengrab:
@@ -41,7 +43,7 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
 	$ chmod 775 swipe </pre>
 - Launch `swipe`. In most cases `Swipe` will look for and find everything it needs, otherwise you can use the options and/or a config file.
 
-See your distro's documentation to setup `Swipe` as a [`Startup Application`](./images/Startup.png) - an [application](./images/Startup.png) that starts when a desktop user logs in. 
+See your distro's documentation to setup `Swipe` as a [`Startup Application`](./images/Startup.png) - an [application](./images/Startup.png) that starts when a desktop user logs in.
 
 <img src="./images/Startup.png"  width='300'>
 
@@ -54,67 +56,72 @@ Usage: ./swipe
   -v  --version          print version information and exit
   -s  --sampleCfg        show sample config
   -d  --debug            show verbose output
-  -c  /etc/ku.conf       config file to use 
+  -c  /etc/ku.conf       config file to use
   -k  --keys             show available keys
   -i  /dev/input/event1  kbd device to use
   -a  --available        show available devices
   -q  --noIndicator      disable status icon
 ```
-- If no config file is specified, `Swipe` would use a default configuration. 
+
+- If no config file is specified, `Swipe` would use a default configuration.
 - If an appropriate `kbd` device cannot be found, `Swipe` will ask you to specify a suitable device using the `-i` option.
 
 ## Config
-Generate a sample config file with  -s option. [Here are some other config examples.](https://github.com/evuraan/Swipe/issues/7)
+
+Generate a sample config file with -s option. [Here are some other config examples.](https://github.com/evuraan/Swipe/issues/7)
 
 ```bash
 $ ./swipe -s
-Sample Config: 
-# 2 Button Touchpad 
-2right: "KEY_LEFTALT + KEY_LEFT"
-2left:  "KEY_LEFTALT + KEY_RIGHT"
 
-# 3 Button Touchpad Gestures:
-3right: "KEY_LEFTALT + KEY_LEFT"
-3left:  "KEY_LEFTALT + KEY_RIGHT"
-3up:    "KEY_SPACE"
-3down:  "KEY_LEFTSHIFT + KEY_SPACE"
+Sample Config:
+# 2 button touchpad gestures
+2right:     "KEY_LEFTALT + KEY_LEFT"
+2left:      "KEY_LEFTALT + KEY_RIGHT"
 
-# 4 Button Touchpad Gestures:
-4right: "KEY_MUTE"
-4left:  "KEY_MUTE"
-4up:    "KEY_VOLUMEUP"
-4down:  "KEY_VOLUMEDOWN"
+# 3 button touchpad gestures
+3right:     "KEY_LEFTALT + KEY_LEFT"
+3left:      "KEY_LEFTALT + KEY_RIGHT"
+3up:        "KEY_SPACE"
+3down:      "KEY_LEFTSHIFT + KEY_SPACE"
 
-# 5 - Touchscreens
-touch1up:  "KEY_UP"
-touch1down:  "KEY_DOWN"
-touch1left:  "KEY_LEFTALT + KEY_LEFT"
-touch1right:  "KEY_LEFTALT + KEY_RIGHT"
+# 4 button touchpad gestures
+4right:     "KEY_MUTE"
+4left:      "KEY_MUTE"
+4up:        "KEY_VOLUMEUP"
+4down:      "KEY_VOLUMEDOWN"
 
-touch2up:  "KEY_UP"
+# Touchscreen gestures
+touch1up:   "KEY_UP"
+touch1down: "KEY_DOWN"
+touch1left: "KEY_LEFTALT + KEY_LEFT"
+touch1right:"KEY_LEFTALT + KEY_RIGHT"
+
+touch2up:   "KEY_UP"
 touch2down: "KEY_DOWN"
 touch2left: "KEY_LEFTALT + KEY_LEFT"
-touch2right: "KEY_LEFTALT + KEY_RIGHT"
+touch2right:"KEY_LEFTALT + KEY_RIGHT"
 
-touch3up: "KEY_UP"
+touch3up:   "KEY_UP"
 touch3down: "KEY_DOWN"
 touch3left: "KEY_LEFTALT + KEY_LEFT"
-touch3right: "KEY_LEFTALT + KEY_RIGHT"
+touch3right:"KEY_LEFTALT + KEY_RIGHT"
 
-touch4up: "KEY_UP"
+touch4up:   "KEY_UP"
 touch4down: "KEY_DOWN"
 touch4left: "KEY_LEFTALT + KEY_LEFT"
-touch4right: "KEY_LEFTALT + KEY_RIGHT"
+touch4right:"KEY_LEFTALT + KEY_RIGHT"
 ```
 
 Create and edit a custom config to suite your likings:
 
-```bash 
-$ ./swipe -s > mySwipe.conf 
+```bash
+$ ./swipe -s > mySwipe.conf
 ```
+
 Make edits to `mySwipe.conf` and launch swipe as `$ ./swipe -c mySwipe.conf`
 
 ### Config file example
+
 This is config the author currently uses:
 
 <pre>
@@ -124,9 +131,9 @@ This is config the author currently uses:
 
 # 3 Button Touchpad Gestures:
 # Zoom in and out
-3right: "KEY_RIGHTCTRL + KEY_0" 
+3right: "KEY_LEFTCTRL + KEY_RIGHTSHIFT + KEY_EQUAL" 
 3left:  "KEY_RIGHTCTRL + KEY_0"
-3up:    "KEY_RIGHTCTRL + KEY_KPPLUS"
+3up:    "KEY_LEFTCTRL + KEY_RIGHTSHIFT + KEY_EQUAL" 
 3down:  "KEY_RIGHTCTRL + KEY_MINUS"
 
 # 4 Button Touchpad Gestures:
@@ -148,22 +155,26 @@ touch2left: "KEY_LEFTALT + KEY_RIGHT"
 touch2right: "KEY_LEFTALT + KEY_LEFT"
 </pre>
 
-
 ## Debug option
+
 Run with `-d` option to have debug info onto the terminal:
+
 ```bash
-$ ./swipe -d -c /tmp/swipe.conf 
+$ ./swipe -d -c /tmp/swipe.conf
 Fri Sep 03 19:07:12 2021 Swipe/3.01e Read 14 values from the config file
 Fri Sep 03 19:07:12 2021 Swipe/3.01e 2 key touchpad events: map[LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_RIGHTALT + KEY_LEFT]
 Fri Sep 03 19:07:12 2021 Swipe/3.01e 3 key touchpad events: map[DOWN:KEY_LEFTSHIFT + KEY_SPACE LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_LEFTALT + KEY_LEFT UP:KEY_SPACE]
 Fri Sep 03 19:07:12 2021 Swipe/3.01e 4 key touchpad events: map[DOWN:KEY_END LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_LEFTALT + KEY_LEFT UP:KEY_HOME]
 Fri Sep 03 19:07:12 2021 Swipe/3.01e touchscreen events: map[DOWN:KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP + KEY_UP LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_LEFTALT + KEY_LEFT UP:KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN + KEY_DOWN]
 ```
-Desktop notifications ([example](./images/Debug.png)) are also enabled in debug mode - which shows the details of the event intercepted. 
+
+Desktop notifications ([example](./images/Debug.png)) are also enabled in debug mode - which shows the details of the event intercepted.
 
 ## Keys and buttons supported:
+
 Swipe supports about `482` keys/buttons - pretty much inline with Linux's [input-event-codes.h](https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h). <br>  
 Run `swipe -k` to see a full list:
+
 ```bash
 $ ./swipe -k
 Available keys:
@@ -181,13 +192,15 @@ key -->  KEY_PRESENTATION
 key -->  KEY_KBDINPUTASSIST_NEXT
 key -->  KEY_FASTREVERSE
 key -->  KEY_KP1
-<snip>  
+<snip>
 ```
 
-## Optional: Build 
-If you prefer to build yourself, you will need the [Go Programming Language](https://golang.org/dl/) installed on your System. 
+## Optional: Build
 
-Go into the folder and build as: 
-``` 
+If you prefer to build yourself, you will need the [Go Programming Language](https://golang.org/dl/) installed on your System.
+
+Go into the folder and build as:
+
+```
 go build
 ```
