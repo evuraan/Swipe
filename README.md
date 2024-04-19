@@ -19,8 +19,7 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
 - No dependency on Python or Ruby
 - Supports Config files
 - Supports 480+ input events.
-## Available variants/branches 
-- Branch [modular](https://github.com/evuraan/Swipe/tree/modular) - Swipe/1.06e - Use with `xdotool` or [`edotool`](https://github.com/evuraan/edotool) or `ydotool` or `xte` etc. 
+
  
 ## Requirements 
 - libinput-tools  
