@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"embed"
 	"fmt"
 	"io"
@@ -77,8 +78,19 @@ func setupPanelConduit() {
 		return
 	}
 
+	// Which python3 binary to use?
+	// We must use /usr/bin/python3 because the gi repository is not available via pip.
+	// The gi repository, part of PyGObject (Python GObject Introspection), is not
+	// directly available via pip because it requires certain libraries to be
+	// installed at the system level. PyGObject is used to interface with libraries
+	// written in C, such as GTK, GLib, and many others, through GObject Introspection.
+
 	//#nosec G204
-	cmd := exec.Command("python3", pyFile, ico, fmt.Sprintf("%d", os.Getpid()), icoChange, conduit.fifoPath)
+	cmd := exec.Command("/usr/bin/python3", pyFile, ico, fmt.Sprintf("%d", os.Getpid()), icoChange, conduit.fifoPath)
+	// Create buffers to capture standard output and standard error
+	var stdoutBuf, stderrBuf bytes.Buffer
+	cmd.Stdout = &stdoutBuf
+	cmd.Stderr = &stderrBuf
 	//fmt.Println(cmd)
 	//return
 
@@ -88,12 +100,20 @@ func setupPanelConduit() {
 	for _, j := range removeThese {
 		_ = os.Remove(j)
 	}
-	if err == nil {
+
+	switch err {
+	case nil:
 		// user wants to exit by left click.
 		os.Exit(0)
-	} else if err.Error() == "signal: killed" {
-		os.Exit(1)
+	default:
+		// err is not nil
+		if err.Error() == "signal: killed" {
+			os.Exit(1)
+		} else {
+			fmt.Fprintf(os.Stderr, "panel.py err: %s stderr: %s stdout: %s\n", err, cmd.Stderr, cmd.Stdout)
+		}
 	}
+
 }
 
 func (c *conduitStruct) notifyFifo() bool {
