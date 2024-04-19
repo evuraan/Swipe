@@ -50,17 +50,29 @@ See your distro's documentation to setup `Swipe` as a [`Startup Application`](./
 ## Usage:
 
 ```bash
-$ ./swipe -h
-Usage: ./swipe
-  -h  --help             print this usage and exit
-  -v  --version          print version information and exit
-  -s  --sampleCfg        show sample config
-  -d  --debug            show verbose output
-  -c  /etc/ku.conf       config file to use
-  -k  --keys             show available keys
-  -i  /dev/input/event1  kbd device to use
-  -a  --available        show available devices
-  -q  --noIndicator      disable status icon
+ $ ./swipe -h
+Usage of ./swipe:
+  -available
+        Show available devices
+  -c string
+        Config file path
+  -debug
+        Enable debug
+  -delay duration
+        Delay between events (default 100ms)
+  -help
+        Show help
+  -i string
+        Input device, eg: /dev/input/event3
+         (default "/dev/input/event3")
+  -keys
+        Show available keys
+  -noIndicator
+        Disable status icon
+  -sampleCfg
+        Show sample config
+  -version
+        Show version
 ```
 
 - If no config file is specified, `Swipe` would use a default configuration.
@@ -157,7 +169,7 @@ touch2right: "KEY_LEFTALT + KEY_LEFT"
 
 ## Debug option
 
-Run with `-d` option to have debug info onto the terminal:
+Run with `-debug` option to have debug info onto the terminal:
 
 ```bash
 $ ./swipe -d -c /tmp/swipe.conf
