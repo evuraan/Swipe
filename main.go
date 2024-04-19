@@ -151,6 +151,7 @@ void handleComboEvents(int32_t *events){
 */
 import "C"
 import (
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -163,6 +164,7 @@ import (
 
 var (
 	stdout             io.ReadCloser
+	eventDelay         time.Duration
 	mustHave           = []string{"/usr/libexec/libinput/libinput-debug-events", "libinput-debug-events"}
 	deBug              = false
 	notifyBool         = false
@@ -218,7 +220,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "9.0ci"
+	ver           = "10a"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -228,6 +230,7 @@ const (
 	POINTER_AXIS  = "POINTER_AXIS"
 	octoberTwoFin = "POINTER_SCROLL_FINGER"
 	oct2FinDelay  = 250 * time.Millisecond
+	defaultDelay  = 100 * time.Millisecond
 	touchMin      = 1
 	up            = "UP"
 	down          = "DOWN"
@@ -294,15 +297,88 @@ type moves struct {
 type eventLib struct {
 	sync.RWMutex
 	eventCodes map[string]int
+	lastFired  time.Time
+}
+
+func checkKbd(kbd string) {
+
+	if !strings.Contains(kbd, "/dev/input/event") {
+		fmt.Fprintf(os.Stderr, "Invalid input device %s\n", kbd)
+		os.Exit(1)
+	}
+
+	_, err := os.Stat(kbd)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Could not stat %s: %s\n", kbd, err)
+		os.Exit(1)
+	}
 }
 
 func main() {
 
-	parseArgs()
-	fmt.Printf("Copyright © 2021 Evuraan <evuraan@gmail.com>. All rights reserved.\nThis program comes with ABSOLUTELY NO WARRANTY.\n")
-	print("Howdy!")
+	helpBool := false
+	flag.BoolVar(&helpBool, "help", false, "Show help")
+	verBool := false
+	flag.BoolVar(&verBool, "version", false, "Show version")
+	sampleCfgBool := false
+	flag.BoolVar(&sampleCfgBool, "sampleCfg", false, "Show sample config")
+	keysAvailBool := false
+	flag.BoolVar(&keysAvailBool, "keys", false, "Show available keys")
+	devsAvailBool := false
+	flag.BoolVar(&devsAvailBool, "available", false, "Show available devices")
+	flag.BoolVar(&deBug, "debug", false, "Enable debug")
+	suppressIconBool := false
+	flag.BoolVar(&suppressIconBool, "noIndicator", false, "Disable status icon")
 
-	workChan = make(chan string, 2)
+	// kbd
+	defaultKbd := getDeviceForPattern(keyboard)
+	flag.StringVar(&kbd, "i", defaultKbd, fmt.Sprintf("Input device, eg: %s\n", defaultKbd))
+	// config file path
+	flag.StringVar(&configFile, "c", "", "Config file path")
+	// optional time delay between event processing
+	flag.DurationVar(&eventDelay, "delay", defaultDelay, "Delay between events")
+
+	flag.Parse()
+
+	if verBool {
+		fmt.Println("Version:", tag)
+		return
+	}
+
+	if sampleCfgBool {
+		fmt.Printf("\nSample Config: %s\n", sampleConf)
+		return
+	}
+
+	if keysAvailBool {
+		showKeys()
+		return
+	}
+
+	if devsAvailBool {
+		showDevices()
+		return
+	}
+
+	fmt.Printf("Copyright © 2021 Evuraan <evuraan@gmail.com>. All rights reserved.\nThis program comes with ABSOLUTELY NO WARRANTY.\n")
+	// see if a config file was specified
+	if configFile != "" {
+		if !checkFile(configFile) {
+			fmt.Fprintf(os.Stderr, "Could not find config file %s\n", configFile)
+			os.Exit(1)
+		}
+
+		parseConfig(configFile)
+		// our config maps now must be present.
+		if len(evt3) < 1 || len(evt4) < 1 {
+			fmt.Fprint(os.Stderr, "Config maps are empty. Fatal!")
+			os.Exit(1)
+		}
+	}
+
+	//parseArgs()
+
+	workChan = make(chan string, 20)
 	go func() {
 		for cmdString := range workChan {
 			if len(cmdString) > 0 {
@@ -313,13 +389,18 @@ func main() {
 		}
 	}()
 
-	if len(kbd) < 1 {
-		kbd = getDeviceForPattern(keyboard)
-	}
-	if len(kbd) < 1 {
-		fmt.Fprintf(os.Stderr, "Error: Could not find %s device\nPlease use the '-i' option to specify a suitable device.\n", keyboard)
-		os.Exit(1)
-	}
+	print("Howdy!")
+	/*
+		if len(kbd) < 1 {
+			kbd = getDeviceForPattern(keyboard)
+		}
+		if len(kbd) < 1 {
+			fmt.Fprintf(os.Stderr, "Error: Could not find %s device\nPlease use the '-i' option to specify a suitable device.\n", keyboard)
+			os.Exit(1)
+		}
+	*/
+
+	checkKbd(kbd) // we die if this fails
 	print("%s device: %s", keyboard, kbd)
 
 	cKbd := C.CString(kbd)
@@ -352,90 +433,7 @@ func libinput() {
 	}
 
 	err := runThis(launcher)
-	print("err :%v", err)
-}
-
-func parseArgs() {
-	argc := len(os.Args)
-	if argc > 1 {
-		for _, arg := range os.Args {
-
-			if strings.Contains(arg, "debug") || arg == "d" || arg == "--d" || arg == "-d" {
-				deBug = true
-				C.enableDebug()
-			}
-
-			if strings.Contains(arg, "noIndicator") || arg == "q" || arg == "--q" || arg == "-q" {
-				statusIconDisabled = true
-			}
-			if strings.Contains(arg, "help") || arg == "h" || arg == "--h" || arg == "-h" || arg == "?" {
-				showhelp()
-				os.Exit(0)
-			}
-			if strings.Contains(arg, "keys") || arg == "k" || arg == "--k" || arg == "-k" {
-				showKeys()
-				os.Exit(0)
-			}
-			if strings.Contains(arg, "sampleCfg") || arg == "s" || arg == "--s" || arg == "-s" {
-				fmt.Printf("\nSample Config: %s\n", sampleConf)
-				os.Exit(0)
-			}
-			if strings.Contains(arg, "version") || arg == "v" || arg == "--v" || arg == "-v" {
-				fmt.Println("Version:", tag)
-				os.Exit(0)
-			}
-
-			if strings.Contains(arg, "available") || arg == "a" || arg == "--a" || arg == "-a" {
-				showDevices()
-				os.Exit(0)
-			}
-		}
-
-		for i, arg := range os.Args {
-			if arg == "-c" {
-				nextArg := i + 1
-				if argc > nextArg {
-					configFile = os.Args[nextArg]
-					if len(configFile) < 1 {
-						fmt.Println("Invalid usage")
-						showhelp()
-						os.Exit(1)
-					}
-					if !checkFile(configFile) {
-						fmt.Fprintf(os.Stderr, "Could not find config file %s\n", configFile)
-						os.Exit(1)
-					}
-					parseConfig(configFile)
-					// our config maps must be present.
-					if len(evt3) < 1 || len(evt4) < 1 {
-						fmt.Fprint(os.Stderr, "Config maps are empty. Fatal!")
-						os.Exit(1)
-					}
-				} else {
-					fmt.Println("Invalid usage")
-					showhelp()
-					os.Exit(1)
-				}
-			}
-
-			if arg == "-i" {
-				nextArg := i + 1
-				if argc > nextArg {
-					kbd = os.Args[nextArg]
-					if !strings.Contains(kbd, "/dev/input/event") {
-						fmt.Fprintf(os.Stderr, "Invalid input device %s\n", kbd)
-						os.Exit(1)
-					}
-					_, err := os.Stat(kbd)
-					if err != nil {
-						fmt.Fprintf(os.Stderr, "Could not stat %s: %v\n", kbd, err)
-						os.Exit(1)
-					}
-				}
-			}
-		}
-	}
-
+	print("err :%s", err)
 }
 
 func showKeys() {
@@ -492,20 +490,6 @@ func showDevices() {
 
 }
 
-func showhelp() {
-	fmt.Printf("Usage: %s\n", os.Args[0])
-	fmt.Println("  -h  --help             print this usage and exit")
-	fmt.Println("  -v  --version          print version information and exit")
-	fmt.Println("  -s  --sampleCfg        show sample config")
-	fmt.Println("  -d  --debug            show verbose output")
-	fmt.Println("  -c  /etc/ku.conf       config file to use ")
-	fmt.Println("  -k  --keys             show available keys")
-	fmt.Println("  -i  /dev/input/event1  kbd device to use")
-	fmt.Println("  -a  --available        show available devices")
-	fmt.Println("  -q  --noIndicator      disable status icon")
-
-}
-
 func (eventLibPtr *eventLib) showKeys() {
 	self := eventLibPtr
 	self.RLock()
@@ -539,6 +523,12 @@ func (eventLibPtr *eventLib) handleEvent(event string, evtType int) bool {
 		print("dropping event, map len 0")
 	}
 
+	// check if last fired time is within the delay
+	if time.Since(self.lastFired) < eventDelay {
+		print("Dropping event %s, last fired %s", event, self.lastFired)
+		return false
+	}
+
 	cmd, ok := useThisMap[event]
 	if !ok {
 		print("Dropping event %s", event)
@@ -570,6 +560,14 @@ func (eventLibPtr *eventLib) handleEvent(event string, evtType int) bool {
 	eventArray[k] = END
 	//C.handleEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
 	go conduit.notifyFifo()
+
+	// update the last fired time
+	go func() {
+		self.Lock()
+		defer self.Unlock()
+		self.lastFired = time.Now()
+	}()
+
 	if comboBool {
 		C.handleComboEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
 	} else {
