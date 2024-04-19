@@ -376,8 +376,6 @@ func main() {
 		}
 	}
 
-	//parseArgs()
-
 	workChan = make(chan string, 20)
 	go func() {
 		for cmdString := range workChan {
@@ -390,15 +388,6 @@ func main() {
 	}()
 
 	print("Howdy!")
-	/*
-		if len(kbd) < 1 {
-			kbd = getDeviceForPattern(keyboard)
-		}
-		if len(kbd) < 1 {
-			fmt.Fprintf(os.Stderr, "Error: Could not find %s device\nPlease use the '-i' option to specify a suitable device.\n", keyboard)
-			os.Exit(1)
-		}
-	*/
 
 	checkKbd(kbd) // we die if this fails
 	print("%s device: %s", keyboard, kbd)
