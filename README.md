@@ -172,7 +172,7 @@ touch2right: "KEY_LEFTALT + KEY_LEFT"
 Run with `-debug` option to have debug info onto the terminal:
 
 ```bash
-$ ./swipe -d -c /tmp/swipe.conf
+$ ./swipe -debug -c /tmp/swipe.conf
 Fri Sep 03 19:07:12 2021 Swipe/3.01e Read 14 values from the config file
 Fri Sep 03 19:07:12 2021 Swipe/3.01e 2 key touchpad events: map[LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_RIGHTALT + KEY_LEFT]
 Fri Sep 03 19:07:12 2021 Swipe/3.01e 3 key touchpad events: map[DOWN:KEY_LEFTSHIFT + KEY_SPACE LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_LEFTALT + KEY_LEFT UP:KEY_SPACE]
@@ -185,10 +185,10 @@ Desktop notifications ([example](./images/Debug.png)) are also enabled in debug 
 ## Keys and buttons supported:
 
 Swipe supports about `482` keys/buttons - pretty much inline with Linux's [input-event-codes.h](https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h). <br>  
-Run `swipe -k` to see a full list:
+Run `swipe -keys` to see a full list:
 
 ```bash
-$ ./swipe -k
+$ ./swipe -keys
 Available keys:
 key -->  KEY_FN_D
 key -->  KEY_BRL_DOT8
