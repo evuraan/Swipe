@@ -80,7 +80,7 @@ Usage of ./swipe:
 
 ## Config
 
-Generate a sample config file with -s option. [Here are some other config examples.](https://github.com/evuraan/Swipe/issues/7)
+Generate a sample config file with -sampleCfg option. [Here are some other config examples.](https://github.com/evuraan/Swipe/issues/7)
 
 ```bash
 $ ./swipe -s
@@ -127,7 +127,7 @@ touch4right:"KEY_LEFTALT + KEY_RIGHT"
 Create and edit a custom config to suite your likings:
 
 ```bash
-$ ./swipe -s > mySwipe.conf
+$ ./swipe -sampleCfg > mySwipe.conf
 ```
 
 Make edits to `mySwipe.conf` and launch swipe as `$ ./swipe -c mySwipe.conf`
