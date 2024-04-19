@@ -220,7 +220,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "10a.1"
+	ver           = "10a.2"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -246,6 +246,7 @@ const (
 	procWidth     = 20
 	notifyCmd     = "notify-send " + progName
 	arrayLen      = 128 // max key+key+key events: 8
+	inpdev        = "/dev/input/event3"
 	sampleConf    = `
 # 2 button touchpad gestures
 2right:     "KEY_LEFTALT + KEY_LEFT"
@@ -327,12 +328,11 @@ func main() {
 	devsAvailBool := false
 	flag.BoolVar(&devsAvailBool, "available", false, "Show available devices")
 	flag.BoolVar(&deBug, "debug", false, "Enable debug")
-	suppressIconBool := false
-	flag.BoolVar(&suppressIconBool, "noIndicator", false, "Disable status icon")
+	flag.BoolVar(&statusIconDisabled, "noIndicator", false, "Disable status icon")
 
 	// kbd
 	defaultKbd := getDeviceForPattern(keyboard)
-	flag.StringVar(&kbd, "i", defaultKbd, fmt.Sprintf("Input device, eg: %s\n", defaultKbd))
+	flag.StringVar(&kbd, "i", defaultKbd, fmt.Sprintf("Input device, eg: %s\n", inpdev))
 	// config file path
 	flag.StringVar(&configFile, "c", "", "Config file path")
 	// optional time delay between event processing
