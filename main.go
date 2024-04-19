@@ -220,7 +220,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "10a"
+	ver           = "10a.1"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -548,6 +548,12 @@ func (eventLibPtr *eventLib) handleEvent(event string, evtType int) bool {
 	}
 	eventArray[k] = END
 	//C.handleEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
+	if comboBool {
+		C.handleComboEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
+	} else {
+		C.handleEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
+	}
+
 	go conduit.notifyFifo()
 
 	// update the last fired time
@@ -557,11 +563,6 @@ func (eventLibPtr *eventLib) handleEvent(event string, evtType int) bool {
 		self.lastFired = time.Now()
 	}()
 
-	if comboBool {
-		C.handleComboEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
-	} else {
-		C.handleEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
-	}
 	print("Gesture type %d, intent: %s, cmd: %s", evtType, event, cmd)
 	return true
 }
