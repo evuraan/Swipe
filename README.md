@@ -19,8 +19,7 @@ Swipe uses a novel yet simple correlation mechanism to determine directional int
 - No dependency on Python or Ruby
 - Supports Config files
 - Supports 480+ input events.
-## Available variants/branches 
-- Branch [modular](https://github.com/evuraan/Swipe/tree/modular) - Swipe/1.06e - Use with `xdotool` or [`edotool`](https://github.com/evuraan/edotool) or `ydotool` or `xte` etc. 
+
  
 ## Requirements 
 - libinput-tools  
@@ -50,17 +49,29 @@ See your distro's documentation to setup `Swipe` as a [`Startup Application`](./
 ## Usage:
 
 ```bash
-$ ./swipe -h
-Usage: ./swipe
-  -h  --help             print this usage and exit
-  -v  --version          print version information and exit
-  -s  --sampleCfg        show sample config
-  -d  --debug            show verbose output
-  -c  /etc/ku.conf       config file to use
-  -k  --keys             show available keys
-  -i  /dev/input/event1  kbd device to use
-  -a  --available        show available devices
-  -q  --noIndicator      disable status icon
+ $ ./swipe -h
+Usage of ./swipe:
+  -available
+        Show available devices
+  -c string
+        Config file path
+  -debug
+        Enable debug
+  -delay duration
+        Delay between events (default 100ms)
+  -help
+        Show help
+  -i string
+        Input device, eg: /dev/input/event3
+         (default "/dev/input/event3")
+  -keys
+        Show available keys
+  -noIndicator
+        Disable status icon
+  -sampleCfg
+        Show sample config
+  -version
+        Show version
 ```
 
 - If no config file is specified, `Swipe` would use a default configuration.
@@ -68,7 +79,7 @@ Usage: ./swipe
 
 ## Config
 
-Generate a sample config file with -s option. [Here are some other config examples.](https://github.com/evuraan/Swipe/issues/7)
+Generate a sample config file with -sampleCfg option. [Here are some other config examples.](https://github.com/evuraan/Swipe/issues/7)
 
 ```bash
 $ ./swipe -s
@@ -115,7 +126,7 @@ touch4right:"KEY_LEFTALT + KEY_RIGHT"
 Create and edit a custom config to suite your likings:
 
 ```bash
-$ ./swipe -s > mySwipe.conf
+$ ./swipe -sampleCfg > mySwipe.conf
 ```
 
 Make edits to `mySwipe.conf` and launch swipe as `$ ./swipe -c mySwipe.conf`
@@ -157,10 +168,10 @@ touch2right: "KEY_LEFTALT + KEY_LEFT"
 
 ## Debug option
 
-Run with `-d` option to have debug info onto the terminal:
+Run with `-debug` option to have debug info onto the terminal:
 
 ```bash
-$ ./swipe -d -c /tmp/swipe.conf
+$ ./swipe -debug -c /tmp/swipe.conf
 Fri Sep 03 19:07:12 2021 Swipe/3.01e Read 14 values from the config file
 Fri Sep 03 19:07:12 2021 Swipe/3.01e 2 key touchpad events: map[LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_RIGHTALT + KEY_LEFT]
 Fri Sep 03 19:07:12 2021 Swipe/3.01e 3 key touchpad events: map[DOWN:KEY_LEFTSHIFT + KEY_SPACE LEFT:KEY_LEFTALT + KEY_RIGHT RIGHT:KEY_LEFTALT + KEY_LEFT UP:KEY_SPACE]
@@ -173,10 +184,10 @@ Desktop notifications ([example](./images/Debug.png)) are also enabled in debug 
 ## Keys and buttons supported:
 
 Swipe supports about `482` keys/buttons - pretty much inline with Linux's [input-event-codes.h](https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h). <br>  
-Run `swipe -k` to see a full list:
+Run `swipe -keys` to see a full list:
 
 ```bash
-$ ./swipe -k
+$ ./swipe -keys
 Available keys:
 key -->  KEY_FN_D
 key -->  KEY_BRL_DOT8
