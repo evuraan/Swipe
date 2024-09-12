@@ -150,6 +150,7 @@ void handleComboEvents(int32_t *events){
 
 */
 import "C"
+
 import (
 	"flag"
 	"fmt"
@@ -220,7 +221,7 @@ var (
 
 const (
 	progName      = "Swipe"
-	ver           = "10a.2"
+	ver           = "10a.5"
 	stdBuf        = "stdbuf"
 	swipeStart    = "GESTURE_SWIPE_BEGIN"
 	swipeUpdate   = "GESTURE_SWIPE_UPDATE"
@@ -296,13 +297,12 @@ type moves struct {
 }
 
 type eventLib struct {
-	sync.RWMutex
-	eventCodes map[string]int
 	lastFired  time.Time
+	eventCodes map[string]int
+	sync.RWMutex
 }
 
 func checkKbd(kbd string) {
-
 	if !strings.Contains(kbd, "/dev/input/event") {
 		fmt.Fprintf(os.Stderr, "Invalid input device %s\n", kbd)
 		os.Exit(1)
@@ -316,7 +316,6 @@ func checkKbd(kbd string) {
 }
 
 func main() {
-
 	helpBool := false
 	flag.BoolVar(&helpBool, "help", false, "Show help")
 	verBool := false
@@ -369,8 +368,14 @@ func main() {
 		}
 
 		parseConfig(configFile)
-		// our config maps now must be present.
-		if len(evt3) < 1 || len(evt4) < 1 {
+
+		// our config maps now must be present - at least one of them
+		configMaps := []string{"evt1", "evt2", "evt3", "evt4", "evt5"}
+		nonEmpty := 0
+		for _, evtMap := range configMaps {
+			nonEmpty += len(evtMap)
+		}
+		if nonEmpty < 1 {
 			fmt.Fprint(os.Stderr, "Config maps are empty. Fatal!")
 			os.Exit(1)
 		}
@@ -398,10 +403,9 @@ func main() {
 	go setupPanelConduit()
 	libinput()
 	fmt.Println("Bye bye!")
-
 }
-func libinput() {
 
+func libinput() {
 	launcher := ""
 	stdBufBool := checkExec(stdBuf)
 	notifyBool = checkExec("notify-send")
@@ -476,7 +480,6 @@ func showDevices() {
 			fmt.Printf("%s:\t%s\n", key, rhs)
 		}
 	}
-
 }
 
 func (eventLibPtr *eventLib) showKeys() {
@@ -547,7 +550,7 @@ func (eventLibPtr *eventLib) handleEvent(event string, evtType int) bool {
 		return false
 	}
 	eventArray[k] = END
-	//C.handleEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
+	// C.handleEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
 	if comboBool {
 		C.handleComboEvents((*C.int)(unsafe.Pointer(&eventArray[0])))
 	} else {
